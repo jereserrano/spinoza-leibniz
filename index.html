@@ -86,7 +86,7 @@ html {
 body {
   font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   color: var(--text-primary);
-  background: var(--ocean-deep);
+  background: var(--caribe-sand-light, #FDFBF7);
   overflow-x: hidden;
   max-width: 100vw;
   position: relative;
@@ -754,11 +754,12 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
 .journey-stop strong { display: block; font-size: 0.82rem; font-weight: 600; }
 .journey-stop small { display: block; font-size: 0.7rem; color: var(--text-light); margin-top: 2px; }
 .journey-stop .stop-icon { font-size: 1.3rem; margin-bottom: 4px; display: block; }
-.stop-s0 { left: 8%; top: 72%; }
-.stop-s1 { left: 29%; top: 28%; }
-.stop-s2 { left: 50%; top: 72%; }
-.stop-s3 { left: 71%; top: 28%; }
-.stop-s4 { left: 92%; top: 72%; }
+.stop-s0 { left: 6%; top: 72%; }
+.stop-s1 { left: 24%; top: 28%; }
+.stop-s2 { left: 42%; top: 72%; }
+.stop-s3 { left: 60%; top: 28%; }
+.stop-s4 { left: 78%; top: 72%; }
+.stop-s5 { left: 94%; top: 28%; }
 
 /* Traveler */
 .traveler-btn {
@@ -2307,6 +2308,198 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
   }
 }
 
+
+/* ===== HERO FULL BLEED CARIBE COLOMBIANO ===== */
+.hero-section {
+  width: 100% !important;
+  max-width: 100vw !important;
+  margin: 0 !important;
+  min-height: calc(100vh - var(--nav-height));
+  background: 
+    radial-gradient(circle at 50% 15%, rgba(244, 162, 97, 0.35) 0%, transparent 65%),
+    radial-gradient(circle at 85% 85%, rgba(0, 168, 150, 0.18) 0%, transparent 50%),
+    radial-gradient(circle at 15% 85%, rgba(231, 111, 81, 0.15) 0%, transparent 50%),
+    linear-gradient(180deg, #FFE8D6 0%, #FAF0CA 45%, #E8F8F5 85%, #D4F1F4 100%) !important;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.hero-cta {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.hero-cta .btn-primary {
+  background: linear-gradient(135deg, var(--caribe-coral) 0%, var(--caribe-sun) 100%) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  padding: 14px 28px !important;
+  border-radius: 9999px !important;
+  box-shadow: 0 8px 24px rgba(231, 111, 81, 0.35) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+}
+
+.hero-cta .btn-primary:hover {
+  transform: translateY(-3px) scale(1.02) !important;
+  box-shadow: 0 12px 30px rgba(231, 111, 81, 0.45) !important;
+}
+
+.hero-cta .btn-secondary {
+  background: var(--caribe-navy) !important;
+  color: #FAF0CA !important;
+  font-weight: 700 !important;
+  padding: 14px 28px !important;
+  border-radius: 9999px !important;
+  border: 2px solid var(--caribe-turquoise) !important;
+  box-shadow: 0 6px 20px rgba(11, 37, 69, 0.3) !important;
+  transition: all 0.25s ease !important;
+}
+
+.hero-cta .btn-secondary:hover {
+  background: var(--caribe-turquoise) !important;
+  color: #0B2545 !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 28px rgba(0, 168, 150, 0.4) !important;
+}
+
+/* Decoraciones Caribeñas Interactivas (Easter eggs) */
+.easter-coco-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.8rem;
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  display: inline-block;
+}
+.easter-coco-btn:hover {
+  transform: rotate(20deg) scale(1.2);
+}
+
+/* Sección Aportes a la Psicología Styling */
+.caribe-section-psicologia {
+  background: linear-gradient(180deg, #FDFBF7 0%, #FAF0CA 50%, #F4E8C1 100%);
+  position: relative;
+}
+
+.psicologia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 30px;
+  margin-top: 36px;
+}
+
+.psico-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid rgba(2, 128, 144, 0.15);
+}
+
+.psico-badge {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--caribe-navy);
+}
+
+.psico-badge.badge-spinoza { color: #008779; }
+.psico-badge.badge-leibniz { color: #D65A31; }
+
+.psico-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  background: rgba(2, 128, 144, 0.1);
+  color: var(--caribe-sea-deep);
+}
+
+.psico-intro {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-bottom: 20px;
+  font-style: italic;
+}
+
+.psico-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.psico-block {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(2, 128, 144, 0.18);
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 12px rgba(11, 37, 69, 0.05);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.psico-block:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(11, 37, 69, 0.1);
+}
+
+.psico-block-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  color: var(--caribe-navy);
+  margin-bottom: 6px;
+}
+
+.psico-block-title i {
+  width: 16px;
+  height: 16px;
+  color: var(--caribe-coral);
+}
+
+.psico-block p {
+  font-size: 0.86rem;
+  line-height: 1.5;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.psico-interactive-callout {
+  margin-top: 22px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(0, 168, 150, 0.1) 0%, rgba(244, 162, 97, 0.15) 100%);
+  border-left: 4px solid var(--caribe-turquoise);
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--caribe-navy);
+}
+
+/* Fix navbar z-index and safe margins */
+.navbar {
+  z-index: 1000 !important;
+}
+
+.trio-stage {
+  z-index: 850 !important;
+  pointer-events: none !important;
+}
+
+.trio-bubble-anchor {
+  z-index: 860 !important;
+}
+
 </style>
 </head>
 <body>
@@ -2330,6 +2523,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
       <li><a href="#alma" data-section="alma"><i data-lucide="heart"></i> Alma y cuerpo</a></li>
       <li><a href="#libertad" data-section="libertad"><i data-lucide="key"></i> Libertad</a></li>
       <li><a href="#emociones" data-section="emociones"><i data-lucide="smile"></i> Emociones</a></li>
+      <li><a href="#psicologia" data-section="psicologia"><i data-lucide="brain"></i> Psicología</a></li>
       <li><a href="#comparacion" data-section="comparacion"><i data-lucide="git-compare"></i> Comparación</a></li>
       <li><a href="#quiz-section" data-section="quiz-section"><i data-lucide="trophy"></i> Quiz</a></li>
     </ul>
@@ -2349,6 +2543,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
   <a href="#alma" data-section="alma"><i data-lucide="heart" style="width:20px;height:20px"></i> Alma y cuerpo</a>
   <a href="#libertad" data-section="libertad"><i data-lucide="key" style="width:20px;height:20px"></i> Libertad</a>
   <a href="#emociones" data-section="emociones"><i data-lucide="smile" style="width:20px;height:20px"></i> Emociones</a>
+  <a href="#psicologia" data-section="psicologia"><i data-lucide="brain" style="width:20px;height:20px"></i> Psicología</a>
   <a href="#comparacion" data-section="comparacion"><i data-lucide="git-compare" style="width:20px;height:20px"></i> Comparación</a>
   <a href="#quiz-section" data-section="quiz-section"><i data-lucide="trophy" style="width:20px;height:20px"></i> Quiz</a>
 </div>
@@ -2363,6 +2558,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
   <div class="progress-dot" data-label="Alma y cuerpo" data-target="alma"></div>
   <div class="progress-dot" data-label="Libertad" data-target="libertad"></div>
   <div class="progress-dot" data-label="Emociones" data-target="emociones"></div>
+  <div class="progress-dot" data-label="Psicología" data-target="psicologia"></div>
   <div class="progress-dot" data-label="Comparación" data-target="comparacion"></div>
   <div class="progress-dot" data-label="Duelo" data-target="duelo"></div>
   <div class="progress-dot" data-label="Viaje" data-target="viaje"></div>
@@ -2413,7 +2609,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
         <div class="hero-guide-card card-g2" data-guide="guide2" title="Haz clic para activar a Guía 2 (Stickman Spinoziano)">
           <span class="hero-guide-pill"><i data-lucide="book" style="width:12px;height:12px"></i> Spinoziano</span>
           <div class="hero-guide-avatar-wrap">
-            <img src="assets/images/guide2.png" alt="Guía 2 (Stickman Spinoziano)" class="hero-guide-avatar">
+            <img src="assets/images/stickman.png" alt="Guía 2 (Stickman Original · Spinoziano)" class="hero-guide-avatar">
           </div>
           <div class="hero-guide-name">Guía 2</div>
           <div class="hero-guide-role">Compañero Real · Sabio Expresivo</div>
@@ -2796,6 +2992,89 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
     </div>
 </section>
 
+  
+  <!-- ============ APORTES A LA PSICOLOGÍA ============ -->
+  <section id="psicologia" class="section caribe-section-psicologia">
+    <div class="section-header">
+      <div class="academic-chapter-pill"><i data-lucide="brain" style="width:12px;height:12px"></i> Capítulo VIII — Psicología y Subjetividad</div>
+      <div class="section-tag-inline tag-gold"><i data-lucide="sparkles" style="width:12px;height:12px"></i> Raíces de la Mente Moderna</div>
+      <h2 class="section-title">Aportes a la Psicología</h2>
+      <p class="section-subtitle">Dos visiones pioneras sobre la mente: la anatomía geométrica de los afectos y el descubrimiento del inconsciente perceptual.</p>
+    </div>
+
+    <!-- Contenido tomado estrictamente de las diapositivas originales -->
+    <div class="psicologia-grid">
+      <!-- Columna Spinoza -->
+      <div class="glass-card caribe-card-spinoza">
+        <div class="psico-header">
+          <div class="psico-badge badge-spinoza">🌿 Spinoza: Dinámica de los Afectos</div>
+          <span class="psico-pill">Racionalismo Emocional</span>
+        </div>
+        <p class="psico-intro">Spinoza anticipa la psicología de las emociones: los estados mentales no son anomalías morales, sino procesos naturales regidos por causas necesarias.</p>
+
+        <div class="psico-blocks">
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="flame"></i> El Conatus y la Potencia de Actuar</div>
+            <p>Todo ser persevera intrínsecamente en su existencia (<em>conatus</em>). Cuando la potencia de actuar del cuerpo y de la mente aumenta, experimentamos <strong>alegría</strong>; cuando disminuye, sufrimos <strong>tristeza</strong>.</p>
+          </div>
+
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="git-merge"></i> Las Causas de los Afectos</div>
+            <p>Los afectos primarios son <strong>deseo, alegría y tristeza</strong>. Todas las demás emociones (amor, odio, miedo, esperanza) son combinaciones de estos tres afectos básicos asociados a la idea de causas externas.</p>
+          </div>
+
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="unlock"></i> Libertad mediante la Comprensión</div>
+            <p>No nos liberamos reprimiendo las pasiones, sino comprendiendo sus causas con la razón. Un afecto negativo solo es superado por un afecto positivo más fuerte generado por el conocimiento lúcido.</p>
+          </div>
+        </div>
+
+        <div class="psico-interactive-callout">
+          <strong>Clave Psicológica de Spinoza:</strong> La mente y el cuerpo son la misma realidad vista desde dos atributos: lo que afecta al cuerpo afecta simultáneamente a la mente.
+        </div>
+      </div>
+
+      <!-- Columna Leibniz -->
+      <div class="glass-card caribe-card-leibniz">
+        <div class="psico-header">
+          <div class="psico-badge badge-leibniz">✨ Leibniz: El Inconsciente y la Continuidad</div>
+          <span class="psico-pill">Arquitectura Perceptual</span>
+        </div>
+        <p class="psico-intro">Leibniz formula siglos antes que el psicoanálisis la existencia de procesos psíquicos inconscientes, basándose en la continuidad matemática de la mente.</p>
+
+        <div class="psico-blocks">
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="waves"></i> Pequeñas Percepciones (Petites Perceptions)</div>
+            <p>Existen infinitas percepciones diminutas por debajo del umbral consciente. Como el murmullo de una ola: escuchamos el rugido total del mar porque integramos miles de ruidos diminutos de cada gota que no percibimos por separado.</p>
+          </div>
+
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="eye"></i> Apercepción y Conciencia</div>
+            <p>Distingue entre <strong>percepción</strong> (el estado representativo interno) y <strong>apercepción</strong> (la conciencia reflexiva de dicha percepción, mediada por la memoria y la atención consciente).</p>
+          </div>
+
+          <div class="psico-block">
+            <div class="psico-block-title"><i data-lucide="activity"></i> Memoria y Continuidad de la Vida Mental</div>
+            <p><em>La naturaleza no da saltos</em> (lex continui). La mente nunca está en blanco total; la memoria garantiza la continuidad temporal y la identidad personal de la mónada a través de todos sus estados.</p>
+          </div>
+        </div>
+
+        <div class="psico-interactive-callout">
+          <strong>Clave Psicológica de Leibniz:</strong> La vida psíquica es un continuo dinámico; la vigilia, el sueño y el pensamiento reflexivo son grados de claridad en la apercepción.
+        </div>
+      </div>
+    </div>
+
+    <!-- Botón Volver al barco -->
+    <div class="station-return-bar">
+      <button id="btn-return-boat-psicologia" class="btn btn-return-boat" onclick="window.philosophicalGuide ? philosophicalGuide.returnToBoat('psicologia') : (window.location.hash='#viaje')" type="button" aria-label="Volver al barco en el mapa" title="Volver al barco en el mapa">
+        <i data-lucide="anchor"></i>
+        <span>Volver al barco</span>
+      </button>
+    </div>
+  </section>
+
+
   <!-- ============ COMPARACIÓN ============ -->
   <section id="comparacion" class="section">
     <div class="section-header">
@@ -2910,11 +3189,15 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
         <span class="stop-icon">✨</span>
         <strong>Leibniz</strong><small>Mónadas</small>
       </button>
-      <button class="journey-stop stop-s3" onclick="journeyGo('comparar')" type="button" id="jstop-comparar">
+      <button class="journey-stop stop-s3" onclick="journeyGo('psicologia')" type="button" id="jstop-psicologia">
+        <span class="stop-icon">🧠</span>
+        <strong>Psicología</strong><small>Mente y Afectos</small>
+      </button>
+      <button class="journey-stop stop-s4" onclick="journeyGo('comparar')" type="button" id="jstop-comparar">
         <span class="stop-icon">⚔️</span>
         <strong>Comparación</strong><small>Duelo de ideas</small>
       </button>
-      <button class="journey-stop stop-s4" onclick="journeyGo('quiz')" type="button" id="jstop-quiz">
+      <button class="journey-stop stop-s5" onclick="journeyGo('quiz')" type="button" id="jstop-quiz">
         <span class="stop-icon">🏆</span>
         <strong>Quiz</strong><small>Reto final</small>
       </button>
@@ -3087,24 +3370,29 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
     <div class="trio-bubble-anchor">
       <div id="guideSpeech2" class="trio-bubble bubble-g2" style="display:none;">
         <div class="trio-bubble-header">
-          <span class="trio-speaker-badge">👓 Guía 2 · <small>Spinoziano</small></span>
+          <span class="trio-speaker-badge">🎙️ Guía 2 · <small>Voz Real</small></span>
           <button class="trio-bubble-close" onclick="window.philosophicalGuide.hideBubble('guide2')" type="button" aria-label="Cerrar">&times;</button>
         </div>
         <div id="guideText2" class="trio-bubble-text"></div>
         <div class="trio-audio-controls">
           <div class="trio-audio-meta-row">
-            <div id="waveGuide2" class="trio-audio-waves"><span></span><span></span><span></span></div>
-            <div class="trio-audio-actions">
-              <button id="guidePlay2" class="trio-audio-btn btn-play" type="button" title="Reproducir voz"><i data-lucide="volume-2" style="width:12px;height:12px"></i> Voz</button>
-              <button id="guideStop2" class="trio-audio-btn btn-stop" type="button" title="Detener"><i data-lucide="square" style="width:11px;height:11px"></i> ⏹</button>
-            </div>
+            <div id="waveGuide2" class="trio-audio-waves" title="Onda de audio"><span></span><span></span><span></span><span></span><span></span></div>
+            <span id="audioTime2" class="trio-audio-time">0:00 / 0:00</span>
+          </div>
+          <div class="trio-progress-container">
+            <div id="audioProgress2" class="trio-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="trio-audio-actions">
+            <button id="guidePlay2" class="trio-audio-btn btn-play" type="button" title="Reproducir audio"><i data-lucide="play" style="width:12px;height:12px"></i> ▶</button>
+            <button id="guidePause2" class="trio-audio-btn btn-pause" type="button" title="Pausar audio"><i data-lucide="pause" style="width:12px;height:12px"></i> ⏸</button>
+            <button id="guideStop2" class="trio-audio-btn btn-stop" type="button" title="Detener audio"><i data-lucide="square" style="width:11px;height:11px"></i> ⏹</button>
           </div>
         </div>
         <div class="trio-bubble-arrow"></div>
       </div>
     </div>
     <div class="trio-sprite-wrap" title="Guía 2 — ¡Haz clic para una reflexión geométrica!">
-      <img id="guideImg2" class="trio-sprite" src="assets/images/guide2.png" alt="Guía 2 (Stickman Spinoziano)">
+      <img id="guideImg2" class="trio-sprite" src="assets/images/stickman.png" alt="Guía 2 (Stickman Original · Spinoziano)">
       <div class="trio-pointer-indicator"><i data-lucide="arrow-up-right" style="width:16px;height:16px"></i></div>
     </div>
   </div>
@@ -3292,19 +3580,57 @@ function answer(i){
   buttons.forEach(b=>b.disabled=true);
   buttons[x.c].classList.add('correct');
   if(i===x.c){score+=10}else{buttons[i].classList.add('wrong')}
-  if(window.philosophicalGuide){
-    philosophicalGuide.onQuizAnswer(i===x.c);
+  
+  // Safe notification to guides (prevents quiz freezing if guide method fails)
+  try {
+    if(window.philosophicalGuide && typeof philosophicalGuide.onQuizAnswer === 'function'){
+      philosophicalGuide.onQuizAnswer(i===x.c);
+    }
+  } catch(err) {
+    console.warn("Guide quiz feedback notice:", err);
   }
-  document.getElementById('score').textContent=score;
-  document.getElementById('feedback').innerHTML=`
-    <div class="quiz-feedback">
-      <div class="${i===x.c?'feedback-correct':'feedback-wrong'}">${i===x.c?'✅ ¡Correcto!':'❌ Incorrecto'}</div>
-      <p>${x.e}</p>
-      <button class="btn btn-sm btn-primary" onclick="current++;renderQuestion()" style="margin-top:12px" type="button">
-        ${current===questions.length-1?'Ver resultado':'Siguiente →'}
-      </button>
-    </div>`;
+
+  const scoreEl = document.getElementById('score');
+  if(scoreEl) scoreEl.textContent = score;
+
+  const feedbackEl = document.getElementById('feedback');
+  if(feedbackEl){
+    feedbackEl.innerHTML = `
+      <div class="quiz-feedback animate-feedback">
+        <div class="${i===x.c?'feedback-correct':'feedback-wrong'}">${i===x.c?'✅ ¡Correcto!':'❌ Incorrecto'}</div>
+        <p>${x.e}</p>
+        <button id="btnNextQuiz" class="btn btn-sm btn-primary" onclick="current++;renderQuestion()" style="margin-top:12px" type="button">
+          ${current===questions.length-1?'Ver resultado 🏆':'Siguiente →'}
+        </button>
+      </div>`;
+    const btnNext = document.getElementById('btnNextQuiz');
+    if(btnNext) setTimeout(() => btnNext.focus(), 80);
+  }
 }
+
+// Support keyboard navigation in Quiz
+document.addEventListener('keydown', (e) => {
+  const quizSec = document.getElementById('quiz-section');
+  if(!quizSec) return;
+  const rect = quizSec.getBoundingClientRect();
+  if(rect.top > window.innerHeight || rect.bottom < 0) return;
+
+  const btnNext = document.getElementById('btnNextQuiz');
+  if(btnNext && (e.key === 'Enter' || e.key === ' ')){
+    e.preventDefault();
+    btnNext.click();
+    return;
+  }
+
+  const answers = document.querySelectorAll('#answers .quiz-answer-btn');
+  if(answers.length && !answers[0].disabled){
+    const key = e.key.toUpperCase();
+    if(['1','A'].includes(key) && answers[0]) answers[0].click();
+    else if(['2','B'].includes(key) && answers[1]) answers[1].click();
+    else if(['3','C'].includes(key) && answers[2]) answers[2].click();
+    else if(['4','D'].includes(key) && answers[3]) answers[3].click();
+  }
+});
 
 function finishQuiz(){
   document.getElementById('fill').style.width='100%';
@@ -3605,6 +3931,28 @@ const sectionObserver = new IntersectionObserver((entries) => {
       if(window.philosophicalGuide){
         philosophicalGuide.onSectionEnter(id);
       }
+      // Actualizar indicador 'Estás en:'
+      const stationMap = {
+        'hero': 'Inicio',
+        'pregunta': 'La Pregunta',
+        'spinoza-section': 'Spinoza',
+        'leibniz-section': 'Leibniz',
+        'rutas': 'Elige Ruta',
+        'alma': 'Alma y Cuerpo',
+        'libertad': 'Libertad',
+        'emociones': 'Emociones',
+        'psicologia': 'Aportes a la Psicología',
+        'comparacion': 'Comparación',
+        'duelo': 'Duelo de Ideas',
+        'viaje': 'Mapa del Recorrido',
+        'quiz-section': 'Quiz Filosófico',
+        'minigame': 'Mini-juego',
+        'cierre': 'Cierre de Travesía'
+      };
+      const stEl = document.getElementById('currentStationName');
+      if(stEl && stationMap[id]){
+        stEl.textContent = stationMap[id];
+      }
       // Update progress dots
       const dots = document.querySelectorAll('.progress-dot');
       let found = false;
@@ -3702,17 +4050,20 @@ const philosophicalGuidesConfig = {
   guide2: {
     id: 'guide2',
     name: 'Guía 2',
-    role: 'Compañero Real · Sabio Spinoziano',
-    avatar: 'assets/images/guide2.png',
+    role: 'Stickman Original · Sabio Spinoziano',
+    avatar: 'assets/images/stickman.png',
     badgeClass: 'active-g2',
     pitch: 0.95,
     rate: 0.98,
-    audios: []
+    audios: [
+      'guide2_01', 'guide2_02', 'guide2_03', 'guide2_04', 'guide2_05',
+      'guide2_06', 'guide2_07', 'guide2_08', 'guide2_09', 'guide2_10', 'guide2_11'
+    ]
   },
   guide3: {
     id: 'guide3',
     name: 'Guía 3',
-    role: 'Compañero Real · Intérprete Dinámico',
+    role: 'Compañero Real · Explorador Dinámico',
     avatar: 'assets/images/guide3.png',
     badgeClass: 'active-g3',
     pitch: 1.05,
@@ -3721,8 +4072,10 @@ const philosophicalGuidesConfig = {
   }
 };
 
-// Registro de las 6 pistas de audio del Guía 1 con asignación provisional marcada (FASE 3)
+// Registro de las pistas de audio para Guía 1 (6 audios) y Guía 2 (11 audios)
+// TODO_ASIGNAR_AUDIO: Las asignaciones temáticas son provisionales para su ajuste por el usuario
 const guideAudioRegistry = {
+  // ===== GUÍA 1 (Voz Real · Compañero) =====
   // TODO_ASIGNAR_AUDIO: Audio 01 (11s) asignado provisionalmente a Bienvenida / Hero
   'guide1_01': 'assets/audio/guide1/guide1_01.mp3',
   // TODO_ASIGNAR_AUDIO: Audio 02 (40s) asignado provisionalmente a La Pregunta
@@ -3734,7 +4087,31 @@ const guideAudioRegistry = {
   // TODO_ASIGNAR_AUDIO: Audio 05 (38s) asignado provisionalmente a Comparación
   'guide1_05': 'assets/audio/guide1/guide1_05.mp3',
   // TODO_ASIGNAR_AUDIO: Audio 06 (22s) asignado provisionalmente a Cierre
-  'guide1_06': 'assets/audio/guide1/guide1_06.mp3'
+  'guide1_06': 'assets/audio/guide1/guide1_06.mp3',
+
+  // ===== GUÍA 2 (Voz Real · Stickman Original) =====
+  // TODO_ASIGNAR_AUDIO: Audio 01 (29s) asignado provisionalmente a Determinismo / Causalidad
+  'guide2_01': 'assets/audio/guide2/guide2_01.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 02 (31s) asignado provisionalmente a Mónadas
+  'guide2_02': 'assets/audio/guide2/guide2_02.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 03 (20s) asignado provisionalmente a Armonía Preestablecida
+  'guide2_03': 'assets/audio/guide2/guide2_03.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 04 (30s) asignado provisionalmente a Selección de Rutas
+  'guide2_04': 'assets/audio/guide2/guide2_04.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 05 (52s) asignado provisionalmente a Alma y Cuerpo (Paralelismo)
+  'guide2_05': 'assets/audio/guide2/guide2_05.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 06 (27s) asignado provisionalmente a Libertad y Necesidad
+  'guide2_06': 'assets/audio/guide2/guide2_06.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 07 (40s) asignado provisionalmente a Psicología de las Emociones
+  'guide2_07': 'assets/audio/guide2/guide2_07.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 08 (41s) asignado provisionalmente a Aportes a la Psicología
+  'guide2_08': 'assets/audio/guide2/guide2_08.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 09 (37s) asignado provisionalmente a Comparación Conceptual
+  'guide2_09': 'assets/audio/guide2/guide2_09.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 10 (13s) asignado provisionalmente a Duelo de Ideas
+  'guide2_10': 'assets/audio/guide2/guide2_10.ogg',
+  // TODO_ASIGNAR_AUDIO: Audio 11 (38s) asignado provisionalmente a Desafío del Quiz
+  'guide2_11': 'assets/audio/guide2/guide2_11.ogg'
 };
 
 class PhilosophicalTrioManager {
@@ -3756,25 +4133,25 @@ class PhilosophicalTrioManager {
     this.targetElement = null;
     this.scrollTicking = false;
 
-    // Diálogos y guiones con asignaciones provisionales marcadas con TODO_ASIGNAR_AUDIO
+    // Diálogos y guiones con asignaciones provisionales marcadas con // TODO_ASIGNAR_AUDIO
     this.script = {
       hero: {
         guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 01 (Bienvenida/Hero - 11s)
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 01 de Guía 1 (Bienvenida/Hero - 11s)
         audioId: 'guide1_01',
         text: '¡Bienvenidos a nuestra travesía filosófica con sabor a Caribe! Somos tres compañeros explorando el choque entre la sustancia única de Spinoza y las infinitas mónadas de Leibniz.',
         tip: 'Haz clic en "Comenzar Travesía" o toca a cualquiera de nosotros para escuchar anécdotas y explicaciones.'
       },
       pregunta: {
         guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 02 (La pregunta - 40s)
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 02 de Guía 1 (La pregunta - 40s)
         audioId: 'guide1_02',
         text: 'Momento... esto se puso filosófico. ¿De verdad somos libres o creemos serlo solo porque ignoramos las causas que nos mueven? Como dirían en la costa: ¿somos la ola o el viento que la empuja?',
         tip: 'Toca una de las tarjetas para abrir el debate sobre la libertad y la necesidad.'
       },
       'spinoza-section': {
         guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 03 (Spinoza - 22s)
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 03 de Guía 1 (Spinoza - 22s)
         audioId: 'guide1_03',
         text: '<strong>Baruch Spinoza (1632):</strong> Excomulgado a los 23 años por rechazar un Dios antropomórfico, pulió lentes para preservar su libertad de pensamiento. Para él, Dios y la Naturaleza son una sola sustancia.',
         tip: 'Pulsa ▶ para escuchar la explicación con la voz original.'
@@ -3787,8 +4164,9 @@ class PhilosophicalTrioManager {
       },
       card_determinismo: {
         guideId: 'guide2',
-        audioId: null,
-        text: '<strong>Determinismo:</strong> Todo tiene causas necesarias. Para Spinoza, la libertad no es hacer lo que dé la gana, ¡es comprender con lucidez por qué lo haces!',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 01 de Guía 2 (Determinismo - 29s)
+        audioId: 'guide2_01',
+        text: '<strong>Determinismo Universal:</strong> Todo en la naturaleza procede por necesidad geométrica. Para Spinoza, la libertad no es hacer lo que dé la gana, ¡es comprender con lucidez las causas que te mueven!',
         tip: 'No confundas libertad con capricho.'
       },
       card_conatus: {
@@ -3799,165 +4177,123 @@ class PhilosophicalTrioManager {
       },
       'leibniz-section': {
         guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 04 (Leibniz - 43s)
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 04 de Guía 1 (Leibniz - 43s)
         audioId: 'guide1_04',
-        text: '<strong>Gottfried Leibniz (1646):</strong> Diplomático, influencer académico de Europa e inventor del cálculo. Frente al monismo, él ve el universo como infinitas mónadas en armonía.',
+        text: '<strong>Gottfried Leibniz (1646):</strong> Diplomático, influencer académico de Europa e inventor del cálculo infinitesimal. Frente al monismo de Spinoza, él ve el universo como infinitas mónadas en armonía.',
         tip: 'Pulsa ▶ para escuchar la anécdota histórica sobre Newton y Leibniz.'
       },
       card_monadas: {
         guideId: 'guide2',
-        audioId: null,
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 02 de Guía 2 (Mónadas - 31s)
+        audioId: 'guide2_02',
         text: '<strong>Mónadas:</strong> Unidades simples sin partes materiales. No tienen ventanas hacia afuera, pero cada una refleja el universo entero desde su perspectiva única.',
         tip: '¡Somos un cosmos de infinitos espejos vivientes!'
       },
       card_armonia: {
         guideId: 'guide2',
-        audioId: null,
-        text: '<strong>Armonía preestablecida:</strong> Tu mente y tu cuerpo no se empujan físicamente; están sincronizados como dos relojes perfectos afinados por Dios.',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 03 de Guía 2 (Armonía - 20s)
+        audioId: 'guide2_03',
+        text: '<strong>Armonía preestablecida:</strong> Tu mente y tu cuerpo no se empujan físicamente; están sincronizados como dos relojes perfectos afinados por Dios desde el principio.',
         tip: 'Una coreografía metafísica milimétrica.'
       },
       card_percepciones: {
         guideId: 'guide1',
         audioId: null,
-        text: '<strong>Pequeñas percepciones:</strong> Escuchamos el rugido del mar Caribe, aunque no percibimos conscientemente cada gota de agua chocando. ¡Leibniz descubrió el inconsciente mucho antes del psicoanálisis!',
-        tip: 'La mente procesa millones de procesos bajo el umbral de la conciencia.'
+        text: '<strong>Pequeñas percepciones:</strong> Escuchamos el rugido del mar Caribe, aunque no percibimos conscientemente cada gota de agua chocando. ¡Leibniz descubrió el inconsciente perceptual!',
+        tip: 'La mente procesa millones de estímulos bajo el umbral de la conciencia.'
       },
       rutas: {
-        guideId: 'guide3',
-        audioId: null,
-        text: '¿Qué cosmovisión te convence más? ¿La unidad inquebrantable de Spinoza o la infinita orquesta de Leibniz? ¡Ahora miraremos los aportes a la psicología!',
-        tip: 'Elige tu ruta para profundizar.'
+        guideId: 'guide2',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 04 de Guía 2 (Rutas - 30s)
+        audioId: 'guide2_04',
+        text: '¿Qué cosmovisión te convence más? ¿La unidad inquebrantable de Spinoza o la infinita orquesta de Leibniz? ¡Elige tu ruta para profundizar!',
+        tip: 'Toca una de las rutas para ver su impacto en la mente.'
       },
       alma: {
-        guideId: 'guide3',
-        audioId: null,
-        text: '¡Mueve el control deslizante! Mira cómo se sincroniza mente y cuerpo: ¿dos relojes independientes afinados al unísono o dos caras de una misma moneda?',
-        tip: 'El cuerpo baila al ritmo del entendimiento.'
+        guideId: 'guide2',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 05 de Guía 2 (Alma y Cuerpo - 52s)
+        audioId: 'guide2_05',
+        text: '¡Mueve el control deslizante! Mira cómo se sincronizan mente y cuerpo sin tocarse físicamente en Leibniz, o cómo son dos caras de una misma moneda en Spinoza.',
+        tip: 'Desliza el control interactivo para ver el paralelismo.'
       },
       libertad: {
         guideId: 'guide2',
-        audioId: null,
-        text: 'Prueba el deslizador de libertad: del capricho ciego a la comprensión lúcida. No es huir de las leyes del cosmos, sino comprenderlas y actuar con lucidez.',
-        tip: 'Tranquilo, aún no tienes que redactar la Ética geométrica.'
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 06 de Guía 2 (Libertad - 27s)
+        audioId: 'guide2_06',
+        text: '¡Dilema central! Para Spinoza la libertad es comprender la necesidad. Para Leibniz, es elegir lo mejor con razón suficiente.',
+        tip: 'Abre las tarjetas para examinar ambas perspectivas.'
       },
       emociones: {
-        guideId: 'guide1',
-        audioId: null,
-        text: '<strong>Psicología de las emociones:</strong> Spinoza no veía las pasiones como pecados, sino como matemáticas. Las emociones derivan de deseo, alegría y tristeza. Solo vences un afecto negativo con otro más fuerte.',
-        tip: 'Esto funda las bases de la terapia cognitiva contemporánea.'
+        guideId: 'guide2',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 07 de Guía 2 (Emociones - 40s)
+        audioId: 'guide2_07',
+        text: '<strong>Psicología de las emociones:</strong> Spinoza no veía las pasiones como pecados, sino como matemáticas. Las emociones derivan de deseo, alegría y tristeza.',
+        tip: 'Toca las emociones para ver su efecto en la potencia de actuar.'
+      },
+      psicologia: {
+        guideId: 'guide2',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 08 de Guía 2 (Aportes a la Psicología - 41s)
+        audioId: 'guide2_08',
+        text: '<strong>Aportes a la Psicología:</strong> Spinoza fundamentó la dinámica de los afectos y el conatus, mientras Leibniz descubrió las pequeñas percepciones y la apercepción reflexiva, cimientos de la psicología moderna.',
+        tip: 'Compara la anatomía de los afectos con la arquitectura del inconsciente.'
       },
       comparacion: {
-        guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 05 (Comparación - 38s)
-        audioId: 'guide1_05',
-        text: '¡Aquí nos reunimos los tres! En nuestra mente ocurren millones de procesos. Aquí tienes el cara a cara definitivo entre el pulidor de lentes y el genio diplomático.',
-        tip: 'Compara punto a punto cómo ambos sentaron las bases del pensamiento contemporáneo.'
+        guideId: 'guide2',
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 09 de Guía 2 (Comparación - 37s)
+        audioId: 'guide2_09',
+        text: '¡Llegamos al cara a cara! Los tres estamos aquí para ayudarte a comparar: Dios, realidad, libertad, alma y método frente a frente.',
+        tip: 'Observa la tabla comparativa resumen.'
       },
       duelo: {
         guideId: 'guide2',
-        audioId: null,
-        text: 'Pregúntales lo que quieras: ¿Qué es la realidad? ¿Somos libres? Mira cómo debaten sus respuestas en este choque dialéctico.',
-        tip: 'Un duelo cumbre de la filosofía moderna.'
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 10 de Guía 2 (Duelo - 13s)
+        audioId: 'guide2_10',
+        text: '¡Elige tu bando! ¿Sustancia única o infinitas mónadas? ¡Vota y mira los argumentos clave!',
+        tip: 'Toca a Spinoza o Leibniz para decantar la balanza.'
       },
       viaje: {
         guideId: 'guide3',
         audioId: null,
-        text: '¡El mapa marítimo! Mueve el barquito entre las estaciones o pulsa cualquier punto para escuchar la travesía completa.',
-        tip: 'Navegando las aguas del pensamiento moderno.'
+        text: 'Aquí está el mapa de nuestro viaje por el Caribe filosófico. ¡Toca cada estación o pulsa el barco para navegar!',
+        tip: 'Usa los botones para moverte entre paradas.'
       },
       'quiz-section': {
         guideId: 'guide2',
-        audioId: null,
-        text: '¡Llegó la hora de la verdad bajo la noche estrellada! Demuestra lo que aprendiste en el quiz filosófico. ¡Apunta al rango de Maestro Racionalista!',
-        tip: 'Si llegaste hasta aquí, tu conatus ya aumentó al menos un 40%.'
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 11 de Guía 2 (Quiz - 38s)
+        audioId: 'guide2_11',
+        text: '¡Hora de demostrar lo aprendido! 10 preguntas para poner a prueba tu entendimiento filosófico. ¡Reagrupados estamos para animarte!',
+        tip: 'Responde cada pregunta. Puedes usar las teclas 1-4 o hacer clic.'
       },
       minigame: {
         guideId: 'guide3',
         audioId: null,
-        text: '¿Spinoza o Leibniz? Lee la afirmación y pon a prueba tus reflejos ontológicos. ¡A ver cuántos aciertos consigues!',
-        tip: 'Distingue con precisión geométrica la autoría.'
+        text: '¡Mini-juego de reflejos ontológicos! Lee la afirmación y pulsa rápidamente si pertenece a Spinoza o a Leibniz.',
+        tip: 'Acumula puntos y pon a prueba tu rapidez mental.'
       },
       cierre: {
         guideId: 'guide1',
-        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 06 (Cierre - 22s)
+        // TODO_ASIGNAR_AUDIO: Asignado provisionalmente Audio 06 de Guía 1 (Cierre - 22s)
         audioId: 'guide1_06',
-        text: '¡Has completado el viaje filosófico con nosotros! Spinoza nos enseñó la unidad necesaria; Leibniz la infinita armonía. ¡Celebramos juntos este aprendizaje!',
-        tip: '¡Felicitaciones de parte del equipo universitario!'
+        text: '¡Felicidades por completar esta travesía! Dos formas de leer el mundo, dos gigantes del pensamiento... ¡y tres compañeros celebrando contigo!',
+        tip: '¡Gracias por navegar con nosotros!'
       }
     };
+
+    this.humorPhrases = [
+      'Spinoza diría que esa ola ya estaba determinada desde toda la eternidad.',
+      'Si una mónada no tiene ventanas, ¿cómo le entra la brisa del Caribe?',
+      'Leibniz inventó el cálculo para calcular cuánta alegría cabe en esta travesía.',
+      'Tu conatus está aumentando: perseveras en el estudio como un verdadero sabio.',
+      'Armonía preestablecida: el mar suena justo cuando lees la página perfecta.',
+      'Cuidado con ese coco: cae con causalidad geométrica impecable.'
+    ];
+
+    this.init();
   }
 
   init() {
-    const saved = localStorage.getItem('philosophicalGuideEnabled');
-    this.enabled = saved !== 'false';
-    this.updateToggleBtn();
-
-    ['guide1', 'guide2', 'guide3'].forEach(gid => {
-      const char = document.getElementById(gid === 'guide1' ? 'guideChar1' : gid === 'guide2' ? 'guideChar2' : 'guideChar3');
-      if (char) {
-        char.addEventListener('click', (e) => {
-          if (e.target.closest('.trio-bubble-close') || e.target.closest('.trio-audio-btn')) return;
-          this.hasUserInteracted = true;
-          this.onGuideCharacterClick(gid);
-        });
-      }
-
-      const playBtn = document.getElementById(gid === 'guide1' ? 'guidePlay1' : gid === 'guide2' ? 'guidePlay2' : 'guidePlay3');
-      const stopBtn = document.getElementById(gid === 'guide1' ? 'guideStop1' : gid === 'guide2' ? 'guideStop2' : 'guideStop3');
-      if (playBtn) playBtn.addEventListener('click', () => {
-        this.hasUserInteracted = true;
-        this.playCurrentSpeech(gid);
-      });
-      if (stopBtn) stopBtn.addEventListener('click', () => this.stopAudio());
-    });
-
-    const pauseBtn1 = document.getElementById('guidePause1');
-    if (pauseBtn1) {
-      pauseBtn1.addEventListener('click', () => this.pauseAudio());
-    }
-
-    const toggleBtn = document.getElementById('guideToggleBtn');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => this.toggle());
-    }
-
-    const returnBtn = document.getElementById('returnToJourneyBtn');
-    if (returnBtn) {
-      returnBtn.addEventListener('click', () => this.returnToBoat('inicio'));
-    }
-
-    window.addEventListener('scroll', () => {
-      if (!this.scrollTicking) {
-        window.requestAnimationFrame(() => {
-          this.onScrollUpdate();
-          this.scrollTicking = false;
-        });
-        this.scrollTicking = true;
-      }
-    }, { passive: true });
-
-    window.addEventListener('resize', () => {
-      if (this.targetElement) {
-        this.repositionCurrentTarget();
-      }
-    });
-
-    document.querySelectorAll('.hero-guide-card').forEach(card => {
-      card.addEventListener('click', (e) => {
-        this.hasUserInteracted = true;
-        const gid = e.currentTarget.getAttribute('data-guide');
-        this.setActiveGuide(gid);
-        this.sayRandomHumor(gid);
-      });
-    });
-
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        if (this.currentAudio && !this.currentAudio.paused) {
-          this.pauseAudio();
-        }
-      }
-    });
+    this.initEventListeners();
+    this.initAudioControls();
 
     setTimeout(() => {
       if (this.enabled) {
@@ -4020,7 +4356,7 @@ class PhilosophicalTrioManager {
 
       if (vw < 768) {
         destX = guideId === 'guide1' ? (vw - charW - 16) : (guideId === 'guide2' ? 16 : (vw / 2 - charW / 2));
-        destY = Math.max(75, Math.min(vh - charH - 20, Math.max(80, rect.top + 50)));
+        destY = Math.max(86, Math.min(vh - charH - 20, Math.max(86, rect.top + 50)));
       } else {
         if (rect.left > charW + 30) {
           destX = Math.max(20, rect.left - charW - 16);
@@ -4029,28 +4365,29 @@ class PhilosophicalTrioManager {
         } else {
           destX = Math.max(24, rect.left + 24);
         }
-        destY = Math.max(80, Math.min(vh - charH - 24, rect.top + 70));
+        destY = Math.max(86, Math.min(vh - charH - 24, rect.top + 70));
       }
     } else {
       destX = guideId === 'guide1' ? (vw * 0.15) : (guideId === 'guide2' ? (vw * 0.45) : (vw * 0.75));
-      destY = Math.max(80, vh - charH - 30);
+      destY = Math.max(86, vh - charH - 30);
     }
 
     destX = Math.max(16, Math.min(vw - charW - 16, destX));
-    destY = Math.max(75, Math.min(vh - charH - 24, destY));
+    destY = Math.max(86, Math.min(vh - charH - 24, destY));
 
     const prevPos = this.positions[guideId] || { x: destX, y: destY };
     const dx = destX - prevPos.x;
     const dy = destY - prevPos.y;
     const dist = Math.hypot(dx, dy);
 
+    // Volteo suave del sprite según dirección
     if (dx < -12) {
       char.classList.add('is-facing-left');
     } else if (dx > 12) {
       char.classList.remove('is-facing-left');
     }
 
-    const speed = 95;
+    const speed = 95; // px/s
     let durSec = dist / speed;
     durSec = Math.max(0.45, Math.min(2.4, durSec));
     const durMs = Math.round(durSec * 1000);
@@ -4085,13 +4422,8 @@ class PhilosophicalTrioManager {
     const charW = 75;
     const charH = 130;
 
-    let baseY = Math.max(75, vh - charH - 28);
-    if (target) {
-      const rect = target.getBoundingClientRect();
-      if (rect.bottom < vh - 20) {
-        baseY = Math.max(75, Math.min(vh - charH - 24, rect.bottom + 10));
-      }
-    }
+    // Los guías siempre se colocan en la base inferior de la pantalla para nunca tapar el texto de las tarjetas
+    const baseY = Math.max(86, vh - charH - 24);
 
     const centerX = vw / 2;
     const spacing = vw < 768 ? 65 : 100;
@@ -4149,7 +4481,7 @@ class PhilosophicalTrioManager {
       let targetY = primaryPos.y + (idx === 0 ? 25 : 35);
 
       targetX = Math.max(16, Math.min(vw - 90, targetX));
-      targetY = Math.max(75, Math.min(vh - 145, targetY));
+      targetY = Math.max(86, Math.min(vh - 145, targetY));
 
       setTimeout(() => {
         this.moveTo(gid, null, { customX: targetX, customY: targetY });
@@ -4196,6 +4528,21 @@ class PhilosophicalTrioManager {
   onConceptToggle() {
     if (!this.enabled) return;
     this.sayRandomHumor(this.activeGuideId);
+  }
+
+  onQuizAnswer(correct) {
+    if (!this.enabled) return;
+    const remarks = correct ? [
+      '¡Eso es! Tu entendimiento brilla como el sol del Caribe.',
+      '¡Precisión geométrica! Spinoza y Leibniz asienten satisfechos.',
+      '¡Brillante! Captaste la distinción conceptual a la perfección.'
+    ] : [
+      '¡Casi! No te preocupes, que los errores también tienen causas necesarias.',
+      '¡Ánimo! Hasta Leibniz tuvo que recalcular varias veces sus mónadas.',
+      '¡Sigue adelante! Cada reflexión afina el entendimiento.'
+    ];
+    const text = remarks[Math.floor(Math.random() * remarks.length)];
+    this.showBubble(this.activeGuideId, text, 'Reflexión del Quiz');
   }
 
   onMinigameAnswer(correct) {
@@ -4247,14 +4594,14 @@ class PhilosophicalTrioManager {
       const vw = window.innerWidth;
       const vh = window.innerHeight;
       const charH = 130;
-      const baseY = Math.max(80, vh - charH - 24);
+      const baseY = Math.max(86, vh - charH - 24);
       const g1X = vw < 768 ? 20 : Math.max(16, vw - 320);
       const g2X = vw < 768 ? 95 : Math.max(100, vw - 220);
       const g3X = vw < 768 ? 170 : Math.max(180, vw - 120);
       this.moveTo('guide1', null, { customX: g1X, customY: baseY });
       this.moveTo('guide2', null, { customX: g2X, customY: baseY });
       this.moveTo('guide3', null, { customX: g3X, customY: baseY });
-    } else if (['comparacion', 'quiz-section', 'cierre'].includes(sectionKey)) {
+    } else if (['psicologia', 'comparacion', 'quiz-section', 'cierre'].includes(sectionKey)) {
       this.regroupTrio(sectionKey, target);
     } else {
       if (target) {
@@ -4265,8 +4612,8 @@ class PhilosophicalTrioManager {
 
     this.showBubble(guideId, item.text, item.tip, item.audioId);
 
-    if (this.hasUserInteracted && item.audioId && guideId === 'guide1') {
-      this.playGuideAudio('guide1', item.audioId, item.text);
+    if (this.hasUserInteracted && item.audioId) {
+      this.playGuideAudio(guideId, item.audioId, item.text);
     }
   }
 
@@ -4281,6 +4628,9 @@ class PhilosophicalTrioManager {
     const anchor = char.querySelector('.trio-bubble-anchor');
     const pos = this.positions[guideId] || { x: 50, y: 150 };
     const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const navH = 72;
+    const safeTop = navH + 14; // Margen de seguridad para no tapar navbar ni logo
 
     const heroTitle = document.querySelector('.hero-title');
     let avoidHeroTitle = false;
@@ -4300,21 +4650,20 @@ class PhilosophicalTrioManager {
     }
 
     if (anchor) {
+      // Detección y anclaje al lado de la cabeza del guía con prevención absoluta de cubrir navbar
       if (avoidHeroTitle) {
+        anchor.style.bottom = 'auto';
+        anchor.style.top = '10px';
         if (pos.x < vw / 2) {
-          anchor.style.bottom = 'auto';
-          anchor.style.top = '10px';
-          anchor.style.left = '105%';
-          anchor.style.right = 'auto';
-          anchor.style.transform = 'none';
-        } else {
-          anchor.style.bottom = 'auto';
-          anchor.style.top = '10px';
           anchor.style.left = 'auto';
           anchor.style.right = '105%';
-          anchor.style.transform = 'none';
+        } else {
+          anchor.style.left = '105%';
+          anchor.style.right = 'auto';
         }
-      } else if (pos.y < 190) {
+        anchor.style.transform = 'none';
+      } else if (pos.y < 340) {
+        // Guía cerca del tercio superior: la burbuja va DEBAJO o AL LADO para no tocar el navbar
         anchor.style.bottom = 'auto';
         anchor.style.top = '105%';
         if (pos.x < 160) {
@@ -4331,6 +4680,7 @@ class PhilosophicalTrioManager {
           anchor.style.transform = 'translateX(-50%)';
         }
       } else {
+        // Guía en zona media o inferior: la burbuja va sobre la cabeza con anclaje seguro
         anchor.style.top = 'auto';
         anchor.style.bottom = '105%';
         if (pos.x < 160) {
@@ -4349,271 +4699,341 @@ class PhilosophicalTrioManager {
       }
     }
 
-    let fullText = text;
+    textElem.innerHTML = text;
+    const tipElem = bubble.querySelector('.trio-bubble-tip');
+    if (tipElem) tipElem.remove();
     if (tip) {
-      fullText += `<div class="trio-bubble-tip">💡 <em>${tip}</em></div>`;
+      const tipDiv = document.createElement('div');
+      tipDiv.className = 'trio-bubble-tip';
+      tipDiv.innerHTML = `<i data-lucide="info" style="width:12px;height:12px;display:inline-block;vertical-align:-1px;margin-right:3px"></i> ${tip}`;
+      textElem.parentNode.insertBefore(tipDiv, textElem.nextSibling);
     }
-    textElem.innerHTML = fullText;
+
+    try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+
     bubble.style.display = 'block';
-    bubble.dataset.audioId = audioId || '';
-    bubble.dataset.fallbackText = text.replace(/<[^>]+>/g, '');
 
     if (this.bubbleTimeout) clearTimeout(this.bubbleTimeout);
     this.bubbleTimeout = setTimeout(() => {
       this.hideBubble(guideId);
-    }, 22000);
+    }, 18000);
   }
 
   hideBubble(guideId) {
     const bubble = document.getElementById(guideId === 'guide1' ? 'guideSpeech1' : guideId === 'guide2' ? 'guideSpeech2' : 'guideSpeech3');
     if (bubble) bubble.style.display = 'none';
-    this.setWaveAnimation(guideId, false);
-  }
-
-  playCurrentSpeech(guideId) {
-    const bubble = document.getElementById(guideId === 'guide1' ? 'guideSpeech1' : guideId === 'guide2' ? 'guideSpeech2' : 'guideSpeech3');
-    if (!bubble) return;
-    const audioId = bubble.dataset.audioId;
-    const fallbackText = bubble.dataset.fallbackText || '';
-    this.playGuideAudio(guideId, audioId, fallbackText);
   }
 
   playGuideAudio(guideId, audioId, fallbackText) {
-    this.stopAudio();
-    if (guideId === 'guide1' && audioId && guideAudioRegistry[audioId]) {
-      const audioSrc = guideAudioRegistry[audioId];
+    this.stopAllAudio();
+
+    const audioPath = guideAudioRegistry[audioId];
+    if (!audioPath) {
+      this.speakWithSynthesis(fallbackText, guideId);
+      return;
+    }
+
+    this.isSpeaking = true;
+    const waveElem = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : 'waveGuide2');
+    const timeElem = document.getElementById(guideId === 'guide1' ? 'audioTime1' : 'audioTime2');
+    const progElem = document.getElementById(guideId === 'guide1' ? 'audioProgress1' : 'audioProgress2');
+
+    if (waveElem) waveElem.classList.add('playing');
+
+    const audio = new Audio();
+    this.currentAudio = audio;
+    this.currentAudioGuideId = guideId;
+
+    // Soporte dual .ogg y .mp3
+    let triedFallbackFormat = false;
+
+    const setupListeners = () => {
+      audio.addEventListener('timeupdate', () => {
+        if (!audio.duration) return;
+        const pct = (audio.currentTime / audio.duration) * 100;
+        if (progElem) progElem.style.width = `${pct}%`;
+        if (timeElem) {
+          const curM = Math.floor(audio.currentTime / 60);
+          const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+          const durM = Math.floor(audio.duration / 60);
+          const durS = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+          timeElem.textContent = `${curM}:${curS} / ${durM}:${durS}`;
+        }
+      });
+
+      audio.addEventListener('ended', () => {
+        this.stopAllAudio();
+      });
+
+      audio.addEventListener('error', () => {
+        if (!triedFallbackFormat) {
+          triedFallbackFormat = true;
+          // Si falló .ogg probar .mp3 o viceversa
+          const altPath = audioPath.endsWith('.ogg') ? audioPath.replace('.ogg', '.mp3') : audioPath.replace('.mp3', '.ogg');
+          audio.src = altPath;
+          audio.play().catch(() => {
+            this.speakWithSynthesis(fallbackText, guideId);
+          });
+        } else {
+          this.speakWithSynthesis(fallbackText, guideId);
+        }
+      });
+    };
+
+    setupListeners();
+    audio.src = audioPath;
+    audio.play().catch(e => {
+      // Si la reproducción falla por restricciones de autoplay, espera interacción del usuario
+      console.warn("Audio play prevented or format issue, using fallback:", e);
+      if (waveElem) waveElem.classList.remove('playing');
+    });
+  }
+
+  stopAllAudio() {
+    if (this.currentAudio) {
       try {
-        const audio = new Audio(audioSrc);
-        this.currentAudio = audio;
-        this.isSpeaking = true;
-        this.setWaveAnimation('guide1', true);
-
-        const timeElem = document.getElementById('audioTime1');
-        const progElem = document.getElementById('audioProgress1');
-
-        const fmtTime = (s) => {
-          if (!s || isNaN(s)) return '0:00';
-          const m = Math.floor(s / 60);
-          const sec = Math.floor(s % 60);
-          return `${m}:${sec < 10 ? '0' : ''}${sec}`;
-        };
-
-        audio.ontimeupdate = () => {
-          if (audio.duration && progElem) {
-            const pct = (audio.currentTime / audio.duration) * 100;
-            progElem.style.width = `${pct}%`;
-          }
-          if (timeElem) {
-            timeElem.textContent = `${fmtTime(audio.currentTime)} / ${fmtTime(audio.duration)}`;
-          }
-        };
-
-        audio.onended = () => {
-          this.isSpeaking = false;
-          this.setWaveAnimation('guide1', false);
-          if (progElem) progElem.style.width = '0%';
-          if (timeElem) timeElem.textContent = '0:00 / ' + fmtTime(audio.duration);
-        };
-
-        audio.onerror = (e) => {
-          console.warn('Audio MP3 no disponible en ruta:', audioSrc, 'Usando fallback SpeechSynthesis.');
-          this.currentAudio = null;
-          this.speakWithSynthesis(fallbackText, 'guide1');
-        };
-
-        audio.play().catch(err => {
-          console.warn('Reproducción de audio bloqueada o requiere interacción:', err);
-          this.currentAudio = null;
-          this.speakWithSynthesis(fallbackText, 'guide1');
-        });
-        return;
-      } catch(e) {
-        console.warn('Error al instanciar Audio:', e);
-      }
-    }
-
-    this.speakWithSynthesis(fallbackText, guideId);
-  }
-
-  pauseAudio() {
-    if (this.currentAudio) {
-      if (this.currentAudio.paused) {
-        this.currentAudio.play().catch(() => {});
-        this.setWaveAnimation('guide1', true);
-        this.isSpeaking = true;
-      } else {
         this.currentAudio.pause();
-        this.setWaveAnimation('guide1', false);
-        this.isSpeaking = false;
-      }
-    }
-  }
-
-  stopAudio() {
-    if (this.currentAudio) {
-      this.currentAudio.pause();
-      this.currentAudio.currentTime = 0;
+        this.currentAudio.currentTime = 0;
+      } catch (e) {}
       this.currentAudio = null;
     }
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
     this.isSpeaking = false;
-    ['guide1', 'guide2', 'guide3'].forEach(gid => this.setWaveAnimation(gid, false));
-    const progElem = document.getElementById('audioProgress1');
-    if (progElem) progElem.style.width = '0%';
+    ['waveGuide1', 'waveGuide2'].forEach(id => {
+      const w = document.getElementById(id);
+      if (w) w.classList.remove('playing');
+    });
+    ['audioProgress1', 'audioProgress2'].forEach(id => {
+      const p = document.getElementById(id);
+      if (p) p.style.width = '0%';
+    });
   }
 
-  speakWithSynthesis(text, guideId) {
+  speakWithSynthesis(text, guideId = 'guide3') {
     if (!('speechSynthesis' in window)) return;
-    try {
-      window.speechSynthesis.cancel();
-      const cfg = philosophicalGuidesConfig[guideId] || philosophicalGuidesConfig.guide1;
-      const clean = text.replace(/<[^>]+>/g, '');
-      const utt = new SpeechSynthesisUtterance(clean);
-      utt.lang = 'es-ES';
-      utt.pitch = cfg.pitch;
-      utt.rate = cfg.rate;
-      this.setWaveAnimation(guideId, true);
-      this.isSpeaking = true;
-      utt.onend = () => {
-        this.setWaveAnimation(guideId, false);
-        this.isSpeaking = false;
-      };
-      utt.onerror = () => {
-        this.setWaveAnimation(guideId, false);
-        this.isSpeaking = false;
-      };
-      window.speechSynthesis.speak(utt);
-    } catch(e) {
-      console.warn('SpeechSynthesis error:', e);
-      this.setWaveAnimation(guideId, false);
+    this.stopAllAudio();
+    this.isSpeaking = true;
+    const cleanText = text.replace(/<[^>]*>/g, '');
+    const utter = new SpeechSynthesisUtterance(cleanText);
+    utter.lang = 'es-ES';
+    const cfg = philosophicalGuidesConfig[guideId] || {};
+    utter.pitch = cfg.pitch || 1.0;
+    utter.rate = cfg.rate || 1.0;
+
+    const waveElem = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : guideId === 'guide2' ? 'waveGuide2' : 'waveGuide3');
+    if (waveElem) waveElem.classList.add('playing');
+
+    utter.onend = () => {
+      this.isSpeaking = false;
+      if (waveElem) waveElem.classList.remove('playing');
+    };
+    utter.onerror = () => {
+      this.isSpeaking = false;
+      if (waveElem) waveElem.classList.remove('playing');
+    };
+
+    window.speechSynthesis.speak(utter);
+  }
+
+  initAudioControls() {
+    // Guía 1 controles
+    const gPlay1 = document.getElementById('guidePlay1');
+    const gPause1 = document.getElementById('guidePause1');
+    const gStop1 = document.getElementById('guideStop1');
+    if (gPlay1) {
+      gPlay1.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.hasUserInteracted = true;
+        if (this.currentAudio && this.currentAudioGuideId === 'guide1') {
+          this.currentAudio.play();
+          const w = document.getElementById('waveGuide1');
+          if (w) w.classList.add('playing');
+        } else {
+          const item = this.script[this.currentSection];
+          if (item && item.audioId && item.guideId === 'guide1') {
+            this.playGuideAudio('guide1', item.audioId, item.text);
+          }
+        }
+      });
+    }
+    if (gPause1) {
+      gPause1.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.currentAudio && this.currentAudioGuideId === 'guide1') {
+          this.currentAudio.pause();
+          const w = document.getElementById('waveGuide1');
+          if (w) w.classList.remove('playing');
+        }
+      });
+    }
+    if (gStop1) {
+      gStop1.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.stopAllAudio();
+      });
+    }
+
+    // Guía 2 controles
+    const gPlay2 = document.getElementById('guidePlay2');
+    const gPause2 = document.getElementById('guidePause2');
+    const gStop2 = document.getElementById('guideStop2');
+    if (gPlay2) {
+      gPlay2.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.hasUserInteracted = true;
+        if (this.currentAudio && this.currentAudioGuideId === 'guide2') {
+          this.currentAudio.play();
+          const w = document.getElementById('waveGuide2');
+          if (w) w.classList.add('playing');
+        } else {
+          const item = this.script[this.currentSection];
+          if (item && item.audioId && item.guideId === 'guide2') {
+            this.playGuideAudio('guide2', item.audioId, item.text);
+          }
+        }
+      });
+    }
+    if (gPause2) {
+      gPause2.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.currentAudio && this.currentAudioGuideId === 'guide2') {
+          this.currentAudio.pause();
+          const w = document.getElementById('waveGuide2');
+          if (w) w.classList.remove('playing');
+        }
+      });
+    }
+    if (gStop2) {
+      gStop2.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.stopAllAudio();
+      });
+    }
+
+    // Guía 3 voz síntesis botón
+    const gPlay3 = document.getElementById('guidePlay3');
+    const gStop3 = document.getElementById('guideStop3');
+    if (gPlay3) {
+      gPlay3.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.hasUserInteracted = true;
+        const item = this.script[this.currentSection];
+        if (item) this.speakWithSynthesis(item.text, 'guide3');
+      });
+    }
+    if (gStop3) {
+      gStop3.addEventListener('click', (e) => {
+        e.stopPropagation();
+        this.stopAllAudio();
+      });
     }
   }
 
-  setWaveAnimation(guideId, active) {
-    const wave = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : guideId === 'guide2' ? 'waveGuide2' : 'waveGuide3');
-    if (wave) {
-      if (active) wave.classList.add('is-playing');
-      else wave.classList.remove('is-playing');
-    }
-  }
-
-  returnToBoat(station = 'inicio') {
-    const viajeSec = document.getElementById('viaje');
-    if (viajeSec) {
-      viajeSec.scrollIntoView({ behavior: 'smooth' });
-    }
-
-    if (typeof window.journeyGo === 'function') {
-      window.journeyGo(station);
-    }
-
-    setTimeout(() => {
-      const boat = document.getElementById('traveler') || document.querySelector('.journey-boat') || document.getElementById('viaje');
-      if (boat) {
-        this.moveTo(this.activeGuideId, boat);
-        this.sayHumorousBoatRemark(this.activeGuideId);
+  initEventListeners() {
+    ['guide1', 'guide2', 'guide3'].forEach(gid => {
+      const char = document.getElementById(gid === 'guide1' ? 'guideChar1' : gid === 'guide2' ? 'guideChar2' : 'guideChar3');
+      if (char) {
+        char.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.hasUserInteracted = true;
+          this.onGuideClicked(gid);
+        });
       }
-    }, 650);
+    });
+
+    document.querySelectorAll('.hero-guide-card').forEach(card => {
+      const gid = card.getAttribute('data-guide');
+      if (gid) {
+        card.addEventListener('click', () => {
+          this.hasUserInteracted = true;
+          this.setActiveGuide(gid);
+          const item = this.script[this.currentSection] || this.script.hero;
+          this.showBubble(gid, item.text, item.tip, item.audioId);
+          if (item.audioId) {
+            this.playGuideAudio(gid, item.audioId, item.text);
+          } else {
+            this.speakWithSynthesis(item.text, gid);
+          }
+        });
+      }
+    });
+
+    window.addEventListener('resize', () => {
+      if (!this.scrollTicking) {
+        window.requestAnimationFrame(() => {
+          this.onScrollUpdate();
+          this.scrollTicking = false;
+        });
+        this.scrollTicking = true;
+      }
+    });
+
+    window.addEventListener('scroll', () => {
+      if (!this.scrollTicking) {
+        window.requestAnimationFrame(() => {
+          this.onScrollUpdate();
+          this.scrollTicking = false;
+        });
+        this.scrollTicking = true;
+      }
+    }, { passive: true });
   }
 
-  sayHumorousBoatRemark(guideId) {
-    const remarks = [
-      '¡Todos a bordo en el Caribe! Volvemos a cubierta para recalcular el rumbo ontológico antes de que una marea de afectos nos desvíe.',
-      '¡Ancla izada! Spinoza asegura que el barco navega por leyes necesarias, y Leibniz dice que este es el mejor navío posible.',
-      '¡Capitán en puesto! Regresamos a la nave: un respiro marítimo antes de seguir explorando el cosmos.',
-      '¡A toda vela! Las mónadas de nuestra tripulación ya están perfectamente sincronizadas con el timón.'
-    ];
-    const remark = remarks[Math.floor(Math.random() * remarks.length)];
-    this.showBubble(guideId, remark, '¡Puedes continuar hacia la siguiente estación cuando gustes!');
-    this.speakWithSynthesis(remark, guideId);
-  }
-
-  onGuideCharacterClick(guideId) {
+  onGuideClicked(guideId) {
     this.clickCounts[guideId] = (this.clickCounts[guideId] || 0) + 1;
     this.setActiveGuide(guideId);
 
-    if (this.clickCounts[guideId] >= 4) {
+    if (this.clickCounts[guideId] >= 3) {
+      const easterPhrases = [
+        '¡Ajá, compadre! ¿Tanto clic y todavía dudando si somos sustancia única o mónadas?',
+        '¡Oye vale! Si me sigues picando, Spinoza te va a calcular la paciencia con compás.',
+        '¡Epa! Esta mónada no tiene ventanas, pero sí tiene cosquillas caribeñas.'
+      ];
+      const ep = easterPhrases[Math.floor(Math.random() * easterPhrases.length)];
+      this.showBubble(guideId, ep, '¡Easter Egg Costeño desbloqueado!');
+      this.speakWithSynthesis(ep, guideId);
       this.clickCounts[guideId] = 0;
-      this.triggerEasterEgg();
       return;
     }
 
-    this.sayRandomHumor(guideId);
-  }
-
-  triggerEasterEgg() {
-    const dialogues = [
-      '<strong>¡Tertulia Secreta Caribeña!</strong><br>Guía 1: "¿Alguien más siente que Leibniz calculó este clic?"<br>Guía 2: "Spinoza diría que era inevitable por necesidad cósmica de la sustancia."<br>Guía 3: "¡Y yo solo digo que perseveremos con alegría en el ser!"',
-      '<strong>¡Debate en Cubierta Tropical!</strong><br>Guía 1: "¿Una sola sustancia o infinitas mónadas?"<br>Guía 2: "¡Una sola, indivisible y eterna como el mar!"<br>Guía 3: "¡Paz compañeros, que el quiz aún nos espera!"'
-    ];
-    const egg = dialogues[Math.floor(Math.random() * dialogues.length)];
-    this.showBubble(this.activeGuideId, egg, '¡Has desbloqueado el Easter Egg del trío filosófico!');
+    const item = this.script[this.currentSection] || this.script.hero;
+    this.showBubble(guideId, item.text, item.tip, item.audioId);
+    if (item.audioId && (guideId === 'guide1' || guideId === 'guide2')) {
+      this.playGuideAudio(guideId, item.audioId, item.text);
+    } else {
+      this.speakWithSynthesis(item.text, guideId);
+    }
   }
 
   sayRandomHumor(guideId) {
-    const humorList = {
-      guide1: [
-        'Como dijo Spinoza: no reírse, no lamentarse, ni detestar las acciones humanas, sino comprenderlas... ¡incluso cuando el código falla!',
-        'Si Spinoza estuviese aquí en el Caribe, diría que tu visita a esta página ya estaba determinada desde el origen del cosmos.',
-        'Pulir lentes arruinó la salud de Spinoza, pero aclaró la visión de la filosofía para los siguientes cuatro siglos.'
-      ],
-      guide2: [
-        '¡Leibniz inventó el sistema binario (0 y 1)! Literalmente estamos usando su invento para navegar esta página.',
-        '¿Sabías que Leibniz diseñó una máquina calculadora mecánica de metal? Era un prodigio de la ingeniería barroca.',
-        'Leibniz afirmaba que hasta en una gota de agua del mar Caribe hay un mundo entero de criaturas vivas. ¡Un microscopio metafísico!'
-      ],
-      guide3: [
-        '¡Cuidado con tus afectos! Si esta presentación te da sueño, Spinoza diría que tu potencia de actuar está disminuyendo.',
-        'Si sientes alegría ahora mismo, ¡felicidades! Tu conatus se está expandiendo favorablemente con la brisa caribeña.',
-        '¿Dos relojes sincronizados o una orquesta colosal? ¡La mente y el cuerpo jamás se cansan de bailar!'
-      ]
-    };
-    const pool = humorList[guideId] || humorList.guide1;
-    const text = pool[Math.floor(Math.random() * pool.length)];
-    this.showBubble(guideId, text, 'Curiosidad del compañero');
-    this.speakWithSynthesis(text, guideId);
+    const phrase = this.humorPhrases[Math.floor(Math.random() * this.humorPhrases.length)];
+    this.showBubble(guideId, phrase, 'Chispa filosófica caribeña');
   }
 
-  toggle() {
-    this.enabled = !this.enabled;
-    localStorage.setItem('philosophicalGuideEnabled', this.enabled);
-    const stage = document.getElementById('trioGuidesStage');
-    if (stage) {
-      if (this.enabled) {
-        stage.classList.remove('stage-disabled');
-        this.heroEntrance();
-      } else {
-        stage.classList.add('stage-disabled');
-        this.stopAudio();
-      }
-    }
-    this.updateToggleBtn();
-  }
-
-  updateToggleBtn() {
-    const btn = document.getElementById('guideToggleBtn');
-    if (!btn) return;
-    if (this.enabled) {
-      btn.classList.add('active');
-      btn.innerHTML = '<span class="guide-toggle-dot"></span><span>🧍 3 Guías Activos</span>';
-    } else {
-      btn.classList.remove('active');
-      btn.innerHTML = '<span class="guide-toggle-dot" style="background:#e07a5f"></span><span>⏸️ Guías en Pausa</span>';
+  returnToBoat(stationName = 'inicio') {
+    const viajeSec = document.getElementById('viaje');
+    if (viajeSec) {
+      viajeSec.scrollIntoView({ behavior: 'smooth' });
+      setTimeout(() => {
+        if (typeof journeyGo === 'function') {
+          journeyGo(stationName);
+        }
+      }, 500);
     }
   }
 }
 
-window.philosophicalGuide = new PhilosophicalTrioManager();
-window.philosophicalGuide.init();
-moveBoat('inicio');
-
-// Initialize Lucide icons
+// Inicialización global
 document.addEventListener('DOMContentLoaded', () => {
-  try { lucide.createIcons(); } catch(e) { console.log('Lucide icons loading...'); }
+  window.philosophicalGuide = new PhilosophicalTrioManager();
 });
-try { lucide.createIcons(); } catch(e) {}
+if (document.readyState === 'complete' || document.readyState === 'interactive') {
+  if (!window.philosophicalGuide) {
+    window.philosophicalGuide = new PhilosophicalTrioManager();
+  }
+}
 
 </script>
 </body>
