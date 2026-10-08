@@ -2113,17 +2113,17 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
             <img src="assets/images/guide2.png" alt="Guía 2 (Stickman Spinoziano)" class="hero-guide-avatar">
           </div>
           <div class="hero-guide-name">Guía 2</div>
-          <div class="hero-guide-role">El Sabio Racionalista</div>
+          <div class="hero-guide-role">Compañero Real · Sabio Expresivo</div>
         </div>
 
         <div class="hero-guide-card card-g3" data-guide="guide3" title="Haz clic para activar a Guía 3 (El Intérprete Dinámico)">
-          <!-- // TODO_FOTO_GUIA3: Pendiente recibir foto del 3er compañero para sustituir silueta -->
+          <!-- Foto real del 3er compañero integrada -->
           <span class="hero-guide-pill"><i data-lucide="sparkles" style="width:12px;height:12px"></i> Dinámico</span>
           <div class="hero-guide-avatar-wrap">
             <img src="assets/images/guide3.png" alt="Guía 3 (Intérprete Dinámico)" class="hero-guide-avatar">
           </div>
           <div class="hero-guide-name">Guía 3</div>
-          <div class="hero-guide-role">El Intérprete Vital</div>
+          <div class="hero-guide-role">Compañero Real · Intérprete Vital</div>
         </div>
       </div>
     </div>
@@ -2775,7 +2775,7 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
     <div class="trio-bubble-anchor">
       <div id="guideSpeech2" class="trio-bubble bubble-g2" style="display:none;">
         <div class="trio-bubble-header">
-          <span class="trio-speaker-badge">👓 Guía 2 · <small>El Sabio Spinoziano</small></span>
+          <span class="trio-speaker-badge">👓 Guía 2 · <small>Compañero Real</small></span>
           <button class="trio-bubble-close" onclick="window.philosophicalGuide.hideBubble('guide2')" type="button" aria-label="Cerrar">&times;</button>
         </div>
         <div id="guideText2" class="trio-bubble-text"></div>
@@ -2795,11 +2795,11 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
 
   <!-- Guía 3 (Filósofo Dinámico - Leibniziano / Psicológico) -->
   <div id="guideChar3" class="trio-char char-g3 char-secondary" data-guide="guide3">
-    <!-- // TODO_FOTO_GUIA3: Pendiente recibir foto del 3er compañero para sustituir silueta -->
+    <!-- Foto real del 3er compañero integrada -->
     <div class="trio-bubble-anchor">
       <div id="guideSpeech3" class="trio-bubble bubble-g3" style="display:none;">
         <div class="trio-bubble-header">
-          <span class="trio-speaker-badge">⛵ Guía 3 · <small>El Explorador Dinámico</small></span>
+          <span class="trio-speaker-badge">⛵ Guía 3 · <small>Compañero Real</small></span>
           <button class="trio-bubble-close" onclick="window.philosophicalGuide.hideBubble('guide3')" type="button" aria-label="Cerrar">&times;</button>
         </div>
         <div id="guideText3" class="trio-bubble-text"></div>
@@ -3401,7 +3401,7 @@ const philosophicalGuidesConfig = {
   guide2: {
     id: 'guide2',
     name: 'Guía 2',
-    subtitle: 'El Sabio Spinoziano (Stickman Original)',
+    subtitle: 'Compañero Real · Sabio Expresivo',
     image: 'assets/images/guide2.png',
     voiceFolder: 'assets/audio/guide2/',
     color: 'var(--warm-yellow)',
@@ -3411,10 +3411,9 @@ const philosophicalGuidesConfig = {
     audios: []
   },
   guide3: {
-    // TODO_FOTO_GUIA3: Pendiente recibir foto del 3er integrante para recortar avatar final
     id: 'guide3',
     name: 'Guía 3',
-    subtitle: 'El Intérprete Dinámico',
+    subtitle: 'Compañero Real · Intérprete Vital',
     image: 'assets/images/guide3.png',
     voiceFolder: 'assets/audio/guide3/',
     color: 'var(--coral)',
