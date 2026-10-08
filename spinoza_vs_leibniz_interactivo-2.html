@@ -4,11 +4,297 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Leibniz y Spinoza — Dos formas de leer el mundo</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⛵</text></svg>">
 <meta name="description" content="Una experiencia filosófica interactiva: explora las ideas de Spinoza y Leibniz sobre la realidad, la libertad, el alma y las emociones.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js">
+// ===================================================================
+// CONTROLADOR DEL MODO EXPOSICIÓN (FASE 6)
+// Optimizado para proyectores (16:9, 1366x768, 1920x1080) y control por teclado / clicker
+// ===================================================================
+const presentationSlides = [
+  { id: 'hero', title: 'Portada · Leibniz & Spinoza' },
+  { id: 'pregunta', title: 'Capítulo I · La Gran Pregunta' },
+  { id: 'spinoza-section', title: 'Capítulo II · Benedictus de Spinoza' },
+  { id: 'leibniz-section', title: 'Capítulo III · Gottfried Leibniz' },
+  { id: 'rutas', title: 'Capítulo IV · Elección de Rutas' },
+  { id: 'alma', title: 'Capítulo V · Alma y Cuerpo' },
+  { id: 'libertad', title: 'Capítulo VI · Libertad y Necesidad' },
+  { id: 'emociones', title: 'Capítulo VII · Dinámica de los Afectos' },
+  { id: 'psicologia', title: 'Capítulo VIII · Aportes a la Psicología' },
+  { id: 'comparacion', title: 'Capítulo IX · Comparación Filosófica' },
+  { id: 'duelo', title: 'Capítulo X · Duelo Dialéctico' },
+  { id: 'viaje', title: 'Capítulo XI · Mapa del Recorrido' },
+  { id: 'quiz-section', title: 'Capítulo XII · Quiz Filosófico' },
+  { id: 'minigame', title: 'Capítulo XIII · Mini-Juego Spinoza o Leibniz' },
+  { id: 'cierre', title: 'Capítulo XIV · Síntesis Final' },
+  { id: 'creditos', title: 'Capítulo XV · Créditos y Bibliografía' }
+];
+
+let isPresentationActive = false;
+let currentSlideIndex = 0;
+let isAudioMuted = false;
+
+function initPresentationMode() {
+  const btnToggle = document.getElementById('btnPresentationMode');
+  const modal = document.getElementById('presentationModal');
+  const btnStart = document.getElementById('btnStartPresentation');
+  const btnClose = document.getElementById('btnClosePresModal');
+  const btnExit = document.getElementById('presBtnExit');
+  const btnPrev = document.getElementById('presBtnPrev');
+  const btnNext = document.getElementById('presBtnNext');
+  const btnAudio = document.getElementById('presBtnAudio');
+  const btnMute = document.getElementById('presBtnMute');
+  const btnGuides = document.getElementById('presBtnGuides');
+  const btnFullscreen = document.getElementById('presBtnFullscreen');
+  const btnReset = document.getElementById('presBtnReset');
+
+  if (btnToggle) {
+    btnToggle.addEventListener('click', () => {
+      if (!isPresentationActive) {
+        if (modal) modal.classList.add('active');
+      } else {
+        exitPresentationMode();
+      }
+    });
+  }
+
+  if (btnClose) {
+    btnClose.addEventListener('click', () => {
+      if (modal) modal.classList.remove('active');
+    });
+  }
+
+  if (btnStart) {
+    btnStart.addEventListener('click', () => {
+      if (modal) modal.classList.remove('active');
+      enterPresentationMode();
+    });
+  }
+
+  if (btnExit) btnExit.addEventListener('click', exitPresentationMode);
+  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
+  if (btnNext) btnNext.addEventListener('click', nextSlide);
+
+  if (btnAudio) {
+    btnAudio.addEventListener('click', () => {
+      if (window.philosophicalGuide) {
+        if (philosophicalGuide.isSpeaking && philosophicalGuide.currentAudio) {
+          if (philosophicalGuide.currentAudio.paused) {
+            philosophicalGuide.currentAudio.play();
+          } else {
+            philosophicalGuide.currentAudio.pause();
+          }
+        } else {
+          philosophicalGuide.onGuideClicked(philosophicalGuide.activeGuideId || 'guide1');
+        }
+      }
+    });
+  }
+
+  if (btnMute) {
+    btnMute.addEventListener('click', () => {
+      isAudioMuted = !isAudioMuted;
+      btnMute.classList.toggle('active', isAudioMuted);
+      if (window.philosophicalGuide && philosophicalGuide.currentAudio) {
+        philosophicalGuide.currentAudio.muted = isAudioMuted;
+      }
+    });
+  }
+
+  if (btnGuides) {
+    btnGuides.addEventListener('click', () => {
+      const toggle = document.getElementById('guideToggleBtn');
+      if (toggle) toggle.click();
+    });
+  }
+
+  if (btnFullscreen) {
+    btnFullscreen.addEventListener('click', toggleFullscreen);
+  }
+
+  if (btnReset) {
+    btnReset.addEventListener('click', resetAllProgress);
+  }
+
+  // Atajos de teclado para la exposición
+  document.addEventListener('keydown', (e) => {
+    // Si modal está abierto y pulsa Enter -> comenzar
+    if (modal && modal.classList.contains('active')) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        modal.classList.remove('active');
+        enterPresentationMode();
+        return;
+      } else if (e.key === 'Escape') {
+        modal.classList.remove('active');
+        return;
+      }
+    }
+
+    if (!isPresentationActive) return;
+
+    // Tecla Escape -> salir
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      exitPresentationMode();
+      return;
+    }
+
+    // Flecha derecha / Abajo / AvPág -> siguiente diapositiva
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      nextSlide();
+      return;
+    }
+
+    // Flecha izquierda / Arriba / RePág -> diapositiva anterior
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      prevSlide();
+      return;
+    }
+
+    // Espacio -> reproducir / pausar audio (cuando no se está en un botón o input)
+    if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnAudio) btnAudio.click();
+      return;
+    }
+
+    // M -> silenciar
+    if ((e.key === 'm' || e.key === 'M') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnMute) btnMute.click();
+      return;
+    }
+
+    // G -> alternar guías
+    if ((e.key === 'g' || e.key === 'G') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnGuides) btnGuides.click();
+      return;
+    }
+
+    // F -> pantalla completa
+    if ((e.key === 'f' || e.key === 'F') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      toggleFullscreen();
+      return;
+    }
+  });
+}
+
+function enterPresentationMode() {
+  isPresentationActive = true;
+  document.body.classList.add('presentation-mode');
+  
+  // Detectar la diapositiva actual según la posición del scroll
+  let bestIdx = 0;
+  presentationSlides.forEach((slide, idx) => {
+    const el = document.getElementById(slide.id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= 0) {
+        bestIdx = idx;
+      }
+    }
+  });
+
+  goToSlide(bestIdx);
+  if (window.lucide) lucide.createIcons();
+}
+
+function exitPresentationMode() {
+  isPresentationActive = false;
+  document.body.classList.remove('presentation-mode');
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+function goToSlide(index) {
+  if (index < 0) index = 0;
+  if (index >= presentationSlides.length) index = presentationSlides.length - 1;
+  currentSlideIndex = index;
+
+  const slide = presentationSlides[index];
+  const targetEl = document.getElementById(slide.id);
+  if (targetEl) {
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.philosophicalGuide) {
+      philosophicalGuide.onSectionEnter(slide.id);
+    }
+  }
+
+  // Actualizar HUD
+  const titleEl = document.getElementById('presChapterTitle');
+  const countEl = document.getElementById('presSlideCounter');
+  const fillEl = document.getElementById('presProgressFill');
+  if (titleEl) titleEl.textContent = slide.title;
+  if (countEl) countEl.textContent = `${index + 1} / ${presentationSlides.length}`;
+  if (fillEl) fillEl.style.width = `${((index + 1) / presentationSlides.length) * 100}%`;
+}
+
+function nextSlide() {
+  if (currentSlideIndex < presentationSlides.length - 1) {
+    goToSlide(currentSlideIndex + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIndex > 0) {
+    goToSlide(currentSlideIndex - 1);
+  }
+}
+
+function resetAllProgress() {
+  try {
+    localStorage.removeItem('spinoza_leibniz_quiz_best');
+    localStorage.removeItem('spinoza_minigame_best');
+  } catch(e) {}
+  
+  if (typeof startQuiz === 'function') startQuiz();
+  if (typeof resetMinigame === 'function') resetMinigame();
+
+  if (window.philosophicalGuide) {
+    philosophicalGuide.visitedSections.clear();
+    philosophicalGuide.stopAllAudio();
+  }
+
+  goToSlide(0);
+}
+
+// Pausar animaciones pesadas y audio cuando la pestaña no es visible
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    document.body.classList.add('tab-hidden-paused');
+    if (window.philosophicalGuide) {
+      philosophicalGuide.stopAllAudio();
+    }
+  } else {
+    document.body.classList.remove('tab-hidden-paused');
+  }
+});
+
+// Inicializar Modo Exposición al cargar DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPresentationMode);
+} else {
+  initPresentationMode();
+}
+
+</script>
 <style>
 
 /* ===== CARIBE COLOMBIANO DESIGN SYSTEM (FASE 4) ===== */
@@ -2500,6 +2786,465 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
   z-index: 860 !important;
 }
 
+
+/* ===== FASE 6 — MODO EXPOSICIÓN (PRESENTACIÓN PARA PROYECTOR) ===== */
+.btn-presentation-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, var(--caribe-sun) 0%, var(--caribe-coral) 100%);
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(231, 111, 81, 0.3);
+  transition: all 0.25s ease;
+  margin-left: 8px;
+}
+.btn-presentation-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(231, 111, 81, 0.45);
+}
+.btn-presentation-toggle:active {
+  transform: translateY(0);
+}
+
+/* Modo Exposición Activo */
+body.presentation-mode {
+  font-size: 1.12rem;
+}
+body.presentation-mode .hero-title {
+  font-size: clamp(2.8rem, 5.5vw, 4.6rem) !important;
+}
+body.presentation-mode .section-title {
+  font-size: clamp(2.2rem, 4vw, 3.2rem) !important;
+}
+body.presentation-mode .section-subtitle {
+  font-size: 1.25rem !important;
+}
+body.presentation-mode .concept-card p,
+body.presentation-mode .path-card p,
+body.presentation-mode .psico-block p {
+  font-size: 1.05rem !important;
+  line-height: 1.65 !important;
+}
+body.presentation-mode #returnToJourneyBtn,
+body.presentation-mode #currentStationPill,
+body.presentation-mode .mobile-menu-btn {
+  display: none !important;
+}
+body.presentation-mode .section {
+  scroll-margin-top: 90px;
+}
+
+/* Floating Presentation HUD Dock */
+.presentation-hud {
+  display: none;
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(96vw, 1080px);
+  background: rgba(11, 37, 69, 0.94);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 18px;
+  padding: 10px 18px;
+  z-index: 9999;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.4);
+  color: #ffffff;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  animation: hudSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+body.presentation-mode .presentation-hud {
+  display: flex !important;
+}
+@keyframes hudSlideUp {
+  from { opacity: 0; transform: translate(-50%, 25px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+
+.pres-hud-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 260px;
+}
+.pres-badge {
+  background: var(--caribe-sun);
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.pres-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+.pres-counter {
+  font-size: 0.8rem;
+  color: var(--caribe-gold);
+  font-weight: 700;
+}
+
+.pres-hud-center {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  max-width: 380px;
+}
+.pres-nav-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.pres-nav-btn:hover {
+  background: var(--caribe-turquoise);
+  border-color: var(--caribe-turquoise);
+}
+.pres-progress-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  overflow: hidden;
+}
+.pres-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--caribe-turquoise), var(--caribe-gold));
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.pres-hud-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pres-action-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+}
+.pres-action-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+.pres-action-btn.active {
+  background: var(--caribe-turquoise);
+  border-color: var(--caribe-turquoise);
+}
+.btn-pres-exit {
+  background: rgba(231, 111, 81, 0.85);
+  border-color: transparent;
+}
+.btn-pres-exit:hover {
+  background: var(--caribe-coral);
+}
+
+/* Modal de bienvenida al Modo Exposición */
+.presentation-modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(11, 37, 69, 0.75);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  z-index: 10000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.presentation-modal-overlay.active {
+  display: flex;
+}
+.presentation-modal {
+  background: #ffffff;
+  border-radius: 20px;
+  width: min(90vw, 560px);
+  padding: 28px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+  border: 2px solid var(--caribe-gold);
+  text-align: center;
+  animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes modalPop {
+  from { opacity: 0; transform: scale(0.92); }
+  to { opacity: 1; transform: scale(1); }
+}
+.pres-modal-header {
+  margin-bottom: 16px;
+}
+.pres-modal-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  color: var(--caribe-navy);
+  margin-top: 8px;
+}
+.pres-modal-shortcuts {
+  background: var(--caribe-sand-light);
+  border: 1px solid rgba(0, 168, 150, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  margin: 18px 0;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.pres-shortcut-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.88rem;
+  color: var(--caribe-navy);
+}
+.pres-key {
+  background: #ffffff;
+  border: 1px solid #ccc;
+  border-bottom: 2px solid #aaa;
+  border-radius: 5px;
+  padding: 2px 7px;
+  font-family: monospace;
+  font-weight: 700;
+  font-size: 0.82rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+.pres-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* ===== CRÉDITOS Y BIBLIOGRAFÍA ===== */
+.creditos-section {
+  background: linear-gradient(180deg, #FDFBF7 0%, #FAF0CA 100%);
+  padding-bottom: 80px;
+}
+.creditos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 24px;
+  margin-top: 30px;
+  max-width: 1080px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.credito-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 24px;
+  border: 1px solid rgba(0, 168, 150, 0.2);
+  box-shadow: 0 8px 24px rgba(11, 37, 69, 0.06);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.credito-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(11, 37, 69, 0.12);
+}
+.credito-card-header {
+  margin-bottom: 12px;
+}
+.credito-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--caribe-blue-light);
+  color: var(--caribe-sea-deep);
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 999px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.credito-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.4rem;
+  color: var(--caribe-navy);
+  margin-bottom: 6px;
+}
+.credito-subtitle {
+  font-size: 0.9rem;
+  color: var(--caribe-sea-deep);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+.credito-detail-item {
+  font-size: 0.88rem;
+  margin-bottom: 10px;
+  line-height: 1.5;
+  color: var(--text-primary);
+}
+.credito-editable {
+  background: rgba(244, 162, 97, 0.12);
+  border-left: 3px solid var(--caribe-sun);
+  padding: 2px 6px;
+  border-radius: 3px;
+  display: inline-block;
+  margin-left: 4px;
+  font-weight: 600;
+}
+.integrantes-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.integrante-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--caribe-sand-light);
+  padding: 10px 14px;
+  border-radius: 10px;
+  border-left: 3px solid var(--caribe-turquoise);
+}
+.integrante-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--caribe-turquoise);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.85rem;
+  flex-shrink: 0;
+}
+.integrante-info strong {
+  display: block;
+  font-size: 0.92rem;
+  color: var(--caribe-navy);
+}
+.integrante-info small {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+  display: block;
+}
+
+/* Bibliografía */
+.bibliografia-card {
+  max-width: 1080px;
+  margin: 32px auto 0;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 26px;
+  border: 1px solid rgba(233, 196, 106, 0.4);
+  box-shadow: 0 8px 24px rgba(11, 37, 69, 0.06);
+}
+.bibliografia-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  padding-bottom: 12px;
+}
+.bibliografia-header h3 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  color: var(--caribe-navy);
+  margin: 0;
+}
+.bibliografia-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+}
+.biblio-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--caribe-sand-light);
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--caribe-navy);
+}
+.biblio-icon {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* Quiz Streak Badge & Card Enter */
+.quiz-streak-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #FFE8D6, #FFDDD2);
+  border: 1px solid #F4A261;
+  color: #E76F51;
+  border-radius: 999px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  margin-left: 12px;
+  box-shadow: 0 2px 6px rgba(231, 111, 81, 0.15);
+}
+.quiz-card-enter {
+  animation: quizCardFade 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+@keyframes quizCardFade {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Pause animations when tab is hidden */
+.tab-hidden-paused * {
+  animation-play-state: paused !important;
+}
+
+/* Reduced motion accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .trio-char {
+    transition: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -2526,7 +3271,12 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
       <li><a href="#psicologia" data-section="psicologia"><i data-lucide="brain"></i> Psicología</a></li>
       <li><a href="#comparacion" data-section="comparacion"><i data-lucide="git-compare"></i> Comparación</a></li>
       <li><a href="#quiz-section" data-section="quiz-section"><i data-lucide="trophy"></i> Quiz</a></li>
+      <li><a href="#creditos" data-section="creditos"><i data-lucide="users"></i> Créditos</a></li>
     </ul>
+    <button class="btn-presentation-toggle" id="btnPresentationMode" type="button" aria-label="Activar Modo Exposición" title="Modo Exposición (F11 / Pantalla completa)">
+      <i data-lucide="presentation" style="width:15px;height:15px"></i>
+      <span>Exposición</span>
+    </button>
     <div class="nav-progress-bar" id="navProgressBar"></div>
     <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Abrir menú" type="button">
       <i data-lucide="menu" style="width:24px;height:24px"></i>
@@ -2546,6 +3296,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
   <a href="#psicologia" data-section="psicologia"><i data-lucide="brain" style="width:20px;height:20px"></i> Psicología</a>
   <a href="#comparacion" data-section="comparacion"><i data-lucide="git-compare" style="width:20px;height:20px"></i> Comparación</a>
   <a href="#quiz-section" data-section="quiz-section"><i data-lucide="trophy" style="width:20px;height:20px"></i> Quiz</a>
+  <a href="#creditos" data-section="creditos"><i data-lucide="users" style="width:20px;height:20px"></i> Créditos</a>
 </div>
 
 <!-- Progress Tracker (desktop) -->
@@ -3288,6 +4039,7 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
     <div class="footer-buttons">
       <a href="#hero" class="btn btn-secondary"><i data-lucide="arrow-up"></i> Volver al inicio</a>
       <a href="#viaje" class="btn btn-secondary"><i data-lucide="map"></i> Repetir recorrido</a>
+      <button class="btn btn-secondary" onclick="document.getElementById('btnPresentationMode').click()" type="button"><i data-lucide="presentation"></i> Modo Exposición</button>
       <button class="btn btn-primary" onclick="startQuiz(); document.getElementById('quiz-section').scrollIntoView({behavior:'smooth'});" type="button"><i data-lucide="trophy"></i> Jugar el quiz</button>
     </div>
     
@@ -3309,6 +4061,132 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
       Filosofía con sabor caribeño · Aprende, participa y disfruta la travesía entre las ideas de Spinoza y Leibniz.
     </div>
   </footer>
+
+
+  <!-- ============ CRÉDITOS Y BIBLIOGRAFÍA ============ -->
+  <section id="creditos" class="section creditos-section">
+    <div class="section-header">
+      <div class="academic-chapter-pill"><i data-lucide="graduation-cap" style="width:12px;height:12px"></i> Capítulo XV — Exposición Académica</div>
+      <div class="section-tag-inline tag-gold"><i data-lucide="award" style="width:14px;height:14px"></i> Créditos y Fuentes</div>
+      <h2 class="section-title">Créditos y Bibliografía</h2>
+      <p class="section-subtitle">Presentación interactiva para la cátedra de Filosofía Moderna · Semestre Académico 2026</p>
+    </div>
+
+    <div class="creditos-grid">
+      <!-- Ficha de la Asignatura -->
+      <div class="credito-card card-academica">
+        <div class="credito-card-header">
+          <span class="credito-badge"><i data-lucide="book-open" style="width:13px;height:13px"></i> Asignatura</span>
+        </div>
+        <h3 class="credito-title">Historia de la Filosofía Moderna</h3>
+        <p class="credito-subtitle">Unidad: El Racionalismo Continental en el Siglo XVII</p>
+        <div class="credito-detail-item">
+          <strong>Docente titular:</strong>
+          <!-- // EDITAR_NOMBRES: Ingrese aquí el nombre del docente -->
+          <span class="credito-editable">[Nombre del Profesor(a) — Editable]</span>
+        </div>
+        <div class="credito-detail-item">
+          <strong>Institución:</strong>
+          <span class="credito-editable">[Nombre de la Universidad / Colegio — Editable]</span>
+        </div>
+        <div class="credito-detail-item">
+          <strong>Tema central:</strong>
+          <span>Monismo Sustancial (Spinoza) vs. Pluralismo Monadológico (Leibniz)</span>
+        </div>
+      </div>
+
+      <!-- Integrantes del Grupo -->
+      <div class="credito-card card-integrantes">
+        <div class="credito-card-header">
+          <span class="credito-badge"><i data-lucide="users" style="width:13px;height:13px"></i> Integrantes del Grupo</span>
+        </div>
+        <h3 class="credito-title">Equipo Expositor</h3>
+        <ul class="integrantes-list">
+          <li class="integrante-item">
+            <div class="integrante-avatar">1</div>
+            <div class="integrante-info">
+              <!-- // EDITAR_NOMBRES: Integrante 1 -->
+              <strong>[Nombre del Integrante 1 — Editable]</strong>
+              <small>Metafísica de Spinoza, Sustancia Única y Deus sive Natura</small>
+            </div>
+          </li>
+          <li class="integrante-item">
+            <div class="integrante-avatar">2</div>
+            <div class="integrante-info">
+              <!-- // EDITAR_NOMBRES: Integrante 2 -->
+              <strong>[Nombre del Integrante 2 — Editable]</strong>
+              <small>Monadología de Leibniz, Armonía Preestablecida y Razón Suficiente</small>
+            </div>
+          </li>
+          <li class="integrante-item">
+            <div class="integrante-avatar">3</div>
+            <div class="integrante-info">
+              <!-- // EDITAR_NOMBRES: Integrante 3 -->
+              <strong>[Nombre del Integrante 3 — Editable]</strong>
+              <small>Libertad, Dinámica de los Afectos y Aportes a la Psicología</small>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Bibliografía y Fuentes Consultadas -->
+    <div class="bibliografia-card" id="bibliografia">
+      <div class="bibliografia-header">
+        <i data-lucide="library" style="width:20px;height:20px;color:var(--caribe-turquoise)"></i>
+        <h3>Fuentes Primarias y Bibliografía Consultada</h3>
+      </div>
+      <div class="bibliografia-grid">
+        <div class="biblio-entry">
+          <span class="biblio-icon">📖</span>
+          <div class="biblio-text">
+            <!-- // EDITAR_FUENTES: Fuente Primaria Spinoza -->
+            <strong>Spinoza, Benedictus de (1677 / 2011).</strong>
+            <em>Ética demostrada según el orden geométrico (Ethica More Geometrico Demonstrata)</em>. Edición de Vidal Peña. Madrid: Alianza Editorial.
+          </div>
+        </div>
+        <div class="biblio-entry">
+          <span class="biblio-icon">📖</span>
+          <div class="biblio-text">
+            <!-- // EDITAR_FUENTES: Fuente Primaria Leibniz Monadología -->
+            <strong>Leibniz, Gottfried Wilhelm (1714 / 2010).</strong>
+            <em>Monadología (La Monadologie)</em>. Traducción y notas de Julián Velarde. Madrid: Biblioteca Nueva.
+          </div>
+        </div>
+        <div class="biblio-entry">
+          <span class="biblio-icon">📖</span>
+          <div class="biblio-text">
+            <!-- // EDITAR_FUENTES: Fuente Primaria Leibniz Nuevos Ensayos -->
+            <strong>Leibniz, Gottfried Wilhelm (1704 / 1992).</strong>
+            <em>Nuevos ensayos sobre el entendimiento humano</em>. Madrid: Alianza Editorial.
+          </div>
+        </div>
+        <div class="biblio-entry">
+          <span class="biblio-icon">📖</span>
+          <div class="biblio-text">
+            <!-- // EDITAR_FUENTES: Fuente Secundaria Copleston -->
+            <strong>Copleston, Frederick (2011).</strong>
+            <em>Historia de la filosofía. Volumen 4: De Descartes a Leibniz</em>. Barcelona: Ariel.
+          </div>
+        </div>
+        <div class="biblio-entry">
+          <span class="biblio-icon">🧠</span>
+          <div class="biblio-text">
+            <!-- // EDITAR_FUENTES: Fuente Neurobiología y Psicología Damasio -->
+            <strong>Damasio, Antonio (2003).</strong>
+            <em>En busca de Spinoza: Neurobiología de la emoción y los sentimientos</em>. Barcelona: Crítica.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="station-return-bar" style="margin-top:24px">
+      <button id="btn-return-boat-creditos" class="btn btn-return-boat" onclick="window.philosophicalGuide ? philosophicalGuide.returnToBoat('inicio') : (window.location.hash='#viaje')" type="button" aria-label="Volver al barco en el mapa" title="Volver al barco en el mapa">
+        <i data-lucide="anchor"></i>
+        <span>Volver al barco</span>
+      </button>
+    </div>
+  </section>
 
 </div><!-- /content-wrapper -->
 
@@ -3402,17 +4280,22 @@ h1, h2, h3, h4, .section-title, .hero-title, .modal-title, .closing-title, .map-
     <div class="trio-bubble-anchor">
       <div id="guideSpeech3" class="trio-bubble bubble-g3" style="display:none;">
         <div class="trio-bubble-header">
-          <span class="trio-speaker-badge">⛵ Guía 3 · <small>Dinámico</small></span>
+          <span class="trio-speaker-badge">⛵ Guía 3 · <small>Voz Real · Explorador</small></span>
           <button class="trio-bubble-close" onclick="window.philosophicalGuide.hideBubble('guide3')" type="button" aria-label="Cerrar">&times;</button>
         </div>
         <div id="guideText3" class="trio-bubble-text"></div>
         <div class="trio-audio-controls">
           <div class="trio-audio-meta-row">
-            <div id="waveGuide3" class="trio-audio-waves"><span></span><span></span><span></span></div>
-            <div class="trio-audio-actions">
-              <button id="guidePlay3" class="trio-audio-btn btn-play" type="button" title="Reproducir voz"><i data-lucide="volume-2" style="width:12px;height:12px"></i> Voz</button>
-              <button id="guideStop3" class="trio-audio-btn btn-stop" type="button" title="Detener"><i data-lucide="square" style="width:11px;height:11px"></i> ⏹</button>
-            </div>
+            <div id="waveGuide3" class="trio-audio-waves" title="Onda de audio"><span></span><span></span><span></span><span></span><span></span></div>
+            <span id="audioTime3" class="trio-audio-time">0:00 / 0:00</span>
+          </div>
+          <div class="trio-progress-container">
+            <div id="audioProgress3" class="trio-progress-fill" style="width:0%"></div>
+          </div>
+          <div class="trio-audio-actions">
+            <button id="guidePlay3" class="trio-audio-btn btn-play" type="button" title="Reproducir audio"><i data-lucide="play" style="width:12px;height:12px"></i> ▶</button>
+            <button id="guidePause3" class="trio-audio-btn btn-pause" type="button" title="Pausar audio"><i data-lucide="pause" style="width:12px;height:12px"></i> ⏸</button>
+            <button id="guideStop3" class="trio-audio-btn btn-stop" type="button" title="Detener audio"><i data-lucide="square" style="width:11px;height:11px"></i> ⏹</button>
           </div>
         </div>
         <div class="trio-bubble-arrow"></div>
@@ -3545,13 +4428,16 @@ const questions=[
   {q:"¿Qué tienen en común Spinoza y Leibniz?",a:["Ambos pertenecen al racionalismo.","Ambos rechazan la razón.","Ambos sostienen que nada puede conocerse."],c:0,e:"Los dos forman parte de la tradición racionalista y dan gran importancia a la razón."},
   {q:"¿Cuál frase resume mejor la diferencia?",a:["Spinoza enfatiza la unidad de la realidad; Leibniz, la pluralidad de mónadas y su armonía.","Spinoza niega toda explicación y Leibniz niega a Dios.","No existe ninguna diferencia importante."],c:0,e:"Spinoza parte de una sustancia única; Leibniz explica la realidad mediante una pluralidad de mónadas."}
 ];
-let current=0, score=0;
+let current=0, score=0, quizStreak=0, maxStreak=0;
+window.quizQuestions = questions; // Expose questions for validation
 
 function startQuiz(){
   currentSection='quiz'; moveBoat('quiz');
-  current=0; score=0;
-  document.getElementById('score').textContent=score;
-  document.getElementById('fill').style.width='0%';
+  current=0; score=0; quizStreak=0;
+  const scoreEl = document.getElementById('score');
+  if(scoreEl) scoreEl.textContent=score;
+  const fillEl = document.getElementById('fill');
+  if(fillEl) fillEl.style.width='0%';
   renderQuestion();
 }
 
@@ -3559,8 +4445,12 @@ function renderQuestion(){
   if(current>=questions.length){finishQuiz();return}
   const x=questions[current];
   const box=document.getElementById('quizContent');
+  box.className = 'quiz-card-enter';
   box.innerHTML=`
-    <div class="quiz-question-num">Pregunta ${current+1} de ${questions.length}</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+      <div class="quiz-question-num">Pregunta ${current+1} de ${questions.length}</div>
+      <div class="quiz-streak-badge">🔥 Racha: ${quizStreak}</div>
+    </div>
     <div class="quiz-question-text">${x.q}</div>
     <div class="quiz-answers" id="answers"></div>
     <div id="feedback"></div>`;
@@ -3579,7 +4469,14 @@ function answer(i){
   const buttons=[...document.querySelectorAll('#answers .quiz-answer-btn')];
   buttons.forEach(b=>b.disabled=true);
   buttons[x.c].classList.add('correct');
-  if(i===x.c){score+=10}else{buttons[i].classList.add('wrong')}
+  if(i===x.c){
+    score+=10;
+    quizStreak++;
+    if(quizStreak > maxStreak) maxStreak = quizStreak;
+  } else {
+    quizStreak = 0;
+    buttons[i].classList.add('wrong');
+  }
   
   // Safe notification to guides (prevents quiz freezing if guide method fails)
   try {
@@ -3633,12 +4530,25 @@ document.addEventListener('keydown', (e) => {
 });
 
 function finishQuiz(){
-  document.getElementById('fill').style.width='100%';
-  let rank, rankEmoji, rankMsg;
-  if(score >= 90){ rank="Maestro del debate filosófico"; rankEmoji="🏆"; rankMsg="¡Impresionante dominio de Spinoza y Leibniz!"; }
-  else if(score >= 70){ rank="Pensador destacado"; rankEmoji="🎓"; rankMsg="¡Excelente comprensión del racionalismo!"; }
-  else if(score >= 50){ rank="Aprendiz del racionalismo"; rankEmoji="📚"; rankMsg="¡Buen trabajo! Sigue profundizando."; }
-  else{ rank="Explorador filosófico"; rankEmoji="🌱"; rankMsg="Apenas comienza tu viaje. ¡Vuelve a intentarlo!"; }
+  const fillEl = document.getElementById('fill');
+  if(fillEl) fillEl.style.width='100%';
+  let rank, rankEmoji, rankMsg, celebrRank = 'medium';
+  if(score >= 90){ rank="Maestro del debate filosófico"; rankEmoji="🏆"; rankMsg="¡Impresionante dominio de Spinoza y Leibniz!"; celebrRank = 'high'; }
+  else if(score >= 70){ rank="Pensador destacado"; rankEmoji="🎓"; rankMsg="¡Excelente comprensión del racionalismo!"; celebrRank = 'high'; }
+  else if(score >= 50){ rank="Aprendiz del racionalismo"; rankEmoji="📚"; rankMsg="¡Buen trabajo! Sigue profundizando."; celebrRank = 'medium'; }
+  else{ rank="Explorador filosófico"; rankEmoji="🌱"; rankMsg="Apenas comienza tu viaje. ¡Vuelve a intentarlo!"; celebrRank = 'low'; }
+
+  // Persistir mejor puntaje en localStorage con try/catch seguro
+  try {
+    const prevBest = parseInt(localStorage.getItem('spinoza_leibniz_quiz_best') || '0', 10);
+    if(score > prevBest){
+      localStorage.setItem('spinoza_leibniz_quiz_best', score.toString());
+    }
+  } catch(e) {
+    console.warn("localStorage quiz save error:", e);
+  }
+
+  const bestScore = localStorage.getItem('spinoza_leibniz_quiz_best') || score;
 
   document.getElementById('quizContent').innerHTML=`
     <div class="quiz-result">
@@ -3646,12 +4556,21 @@ function finishQuiz(){
       <div class="result-title">${rankMsg}</div>
       <div class="result-rank-name">${rank}</div>
       <div class="result-score">${score}/100</div>
+      <div style="font-size:0.86rem;color:var(--caribe-gold);font-weight:700;margin-bottom:8px">🔥 Racha máxima: ${maxStreak} aciertos · Récord personal: ${bestScore}/100</div>
       <div class="result-tip">
         Recuerda: <strong>Spinoza</strong> = sustancia única, Dios/Naturaleza y libertad mediante la comprensión.<br>
         <strong>Leibniz</strong> = mónadas, razón suficiente y armonía preestablecida.
       </div>
-      <button class="btn btn-primary" onclick="startQuiz()" type="button"><i data-lucide="rotate-ccw"></i> Jugar otra vez</button>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="startQuiz()" type="button"><i data-lucide="rotate-ccw"></i> Jugar otra vez</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('btnPresentationMode').click()" type="button"><i data-lucide="presentation"></i> Modo Exposición</button>
+      </div>
     </div>`;
+
+  if(window.philosophicalGuide && typeof philosophicalGuide.triggerCelebration === 'function'){
+    philosophicalGuide.triggerCelebration(celebrRank);
+  }
+
   try { lucide.createIcons(); } catch(e) {}
 }
 
@@ -3737,16 +4656,36 @@ function finishMinigame(){
   document.getElementById('mgFill').style.width = '100%';
   const pct = Math.round(mgScore / mgStatements.length * 100);
   let emoji = pct >= 80 ? '🏆' : pct >= 50 ? '📚' : '🌱';
+
+  // Persistir mejor puntaje en localStorage con try/catch seguro
+  try {
+    const prevBestMg = parseInt(localStorage.getItem('spinoza_minigame_best') || '0', 10);
+    if(mgScore > prevBestMg){
+      localStorage.setItem('spinoza_minigame_best', mgScore.toString());
+    }
+  } catch(e) {
+    console.warn("localStorage minigame save:", e);
+  }
+
+  const bestMg = localStorage.getItem('spinoza_minigame_best') || mgScore;
+
   document.getElementById('minigameContent').innerHTML = `
     <div class="quiz-result">
       <div class="result-rank">${emoji}</div>
       <div class="result-title">${pct >= 80 ? '¡Excelente ojo filosófico!' : pct >= 50 ? '¡Buen intento!' : '¡Sigue practicando!'}</div>
       <div class="result-score">${mgScore}/${mgStatements.length}</div>
-      <div class="result-tip">¿Puedes mejorar tu puntuación?</div>
-      <button class="btn btn-gold" onclick="startMinigame()" type="button"><i data-lucide="rotate-ccw"></i> Jugar otra vez</button>
+      <div style="font-size:0.86rem;color:var(--caribe-gold);font-weight:700;margin-bottom:8px">Récord personal: ${bestMg}/${mgStatements.length}</div>
+      <div class="result-tip">¿Puedes mejorar tu puntuación identificando las ideas de Spinoza y Leibniz?</div>
+      <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+        <button class="btn btn-gold" onclick="startMinigame()" type="button"><i data-lucide="rotate-ccw"></i> Jugar otra vez</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('btnPresentationMode').click()" type="button"><i data-lucide="presentation"></i> Modo Exposición</button>
+      </div>
     </div>`;
   try { lucide.createIcons(); } catch(e) {}
 }
+
+// Exponer variables para verificación automatizada y extensiones
+window.minigameCards = mgStatements;
 
 // ===== CONCEPT CARD TOGGLE =====
 function toggleConcept(card){
@@ -3947,7 +4886,8 @@ const sectionObserver = new IntersectionObserver((entries) => {
         'viaje': 'Mapa del Recorrido',
         'quiz-section': 'Quiz Filosófico',
         'minigame': 'Mini-juego',
-        'cierre': 'Cierre de Travesía'
+        'cierre': 'Cierre de Travesía',
+        'creditos': 'Créditos y Fuentes'
       };
       const stEl = document.getElementById('currentStationName');
       if(stEl && stationMap[id]){
@@ -4068,51 +5008,76 @@ const philosophicalGuidesConfig = {
     badgeClass: 'active-g3',
     pitch: 1.05,
     rate: 1.05,
-    audios: []
+    audios: [
+      'guide3_01', 'guide3_02', 'guide3_03', 'guide3_04',
+      'guide3_05', 'guide3_06', 'guide3_07'
+    ]
   }
 };
 
 // Registro de las pistas de audio para Guía 1 (6 audios) y Guía 2 (11 audios)
 // TODO_ASIGNAR_AUDIO: Las asignaciones temáticas son provisionales para su ajuste por el usuario
+// Registro completo de las pistas de audio para Guía 1 (6 audios), Guía 2 (11 audios) y Guía 3 (7 audios)
+// Todos en formato MP3 con preload metadata para compatibilidad universal (Chrome, Edge, Safari/iOS)
+// TODO_ASIGNAR_AUDIO: Asignaciones provisionales basadas en la transcripción real del contenido
 const guideAudioRegistry = {
   // ===== GUÍA 1 (Voz Real · Compañero) =====
-  // TODO_ASIGNAR_AUDIO: Audio 01 (11s) asignado provisionalmente a Bienvenida / Hero
+  // TODO_ASIGNAR_AUDIO: Audio 01 (11s) asignado a Bienvenida / Hero
   'guide1_01': 'assets/audio/guide1/guide1_01.mp3',
-  // TODO_ASIGNAR_AUDIO: Audio 02 (40s) asignado provisionalmente a La Pregunta
+  // TODO_ASIGNAR_AUDIO: Audio 02 (40s) asignado a La Pregunta Fundamental
   'guide1_02': 'assets/audio/guide1/guide1_02.mp3',
-  // TODO_ASIGNAR_AUDIO: Audio 03 (22s) asignado provisionalmente a Spinoza
+  // TODO_ASIGNAR_AUDIO: Audio 03 (22s) asignado a Benedictus de Spinoza
   'guide1_03': 'assets/audio/guide1/guide1_03.mp3',
-  // TODO_ASIGNAR_AUDIO: Audio 04 (43s) asignado provisionalmente a Leibniz
+  // TODO_ASIGNAR_AUDIO: Audio 04 (43s) asignado a Gottfried Wilhelm Leibniz
   'guide1_04': 'assets/audio/guide1/guide1_04.mp3',
-  // TODO_ASIGNAR_AUDIO: Audio 05 (38s) asignado provisionalmente a Comparación
+  // TODO_ASIGNAR_AUDIO: Audio 05 (38s) asignado a Comparación Conceptual
   'guide1_05': 'assets/audio/guide1/guide1_05.mp3',
-  // TODO_ASIGNAR_AUDIO: Audio 06 (22s) asignado provisionalmente a Cierre
+  // TODO_ASIGNAR_AUDIO: Audio 06 (22s) asignado a Cierre y Despedida
   'guide1_06': 'assets/audio/guide1/guide1_06.mp3',
 
   // ===== GUÍA 2 (Voz Real · Stickman Original) =====
-  // TODO_ASIGNAR_AUDIO: Audio 01 (29s) asignado provisionalmente a Determinismo / Causalidad
-  'guide2_01': 'assets/audio/guide2/guide2_01.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 02 (31s) asignado provisionalmente a Mónadas
-  'guide2_02': 'assets/audio/guide2/guide2_02.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 03 (20s) asignado provisionalmente a Armonía Preestablecida
-  'guide2_03': 'assets/audio/guide2/guide2_03.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 04 (30s) asignado provisionalmente a Selección de Rutas
-  'guide2_04': 'assets/audio/guide2/guide2_04.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 05 (52s) asignado provisionalmente a Alma y Cuerpo (Paralelismo)
-  'guide2_05': 'assets/audio/guide2/guide2_05.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 06 (27s) asignado provisionalmente a Libertad y Necesidad
-  'guide2_06': 'assets/audio/guide2/guide2_06.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 07 (40s) asignado provisionalmente a Psicología de las Emociones
-  'guide2_07': 'assets/audio/guide2/guide2_07.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 08 (41s) asignado provisionalmente a Aportes a la Psicología
-  'guide2_08': 'assets/audio/guide2/guide2_08.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 09 (37s) asignado provisionalmente a Comparación Conceptual
-  'guide2_09': 'assets/audio/guide2/guide2_09.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 10 (13s) asignado provisionalmente a Duelo de Ideas
-  'guide2_10': 'assets/audio/guide2/guide2_10.ogg',
-  // TODO_ASIGNAR_AUDIO: Audio 11 (38s) asignado provisionalmente a Desafío del Quiz
-  'guide2_11': 'assets/audio/guide2/guide2_11.ogg'
+  // TODO_ASIGNAR_AUDIO: Audio 01 (29s) asignado a Determinismo / Causalidad
+  'guide2_01': 'assets/audio/guide2/guide2_01.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 02 (31s) asignado a Mónadas
+  'guide2_02': 'assets/audio/guide2/guide2_02.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 03 (20s) asignado a Armonía Preestablecida
+  'guide2_03': 'assets/audio/guide2/guide2_03.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 04 (30s) asignado a Selección de Rutas
+  'guide2_04': 'assets/audio/guide2/guide2_04.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 05 (52s) asignado a Alma y Cuerpo (Paralelismo)
+  'guide2_05': 'assets/audio/guide2/guide2_05.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 06 (27s) asignado a Libertad y Necesidad
+  'guide2_06': 'assets/audio/guide2/guide2_06.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 07 (40s) asignado a Psicología de las Emociones
+  'guide2_07': 'assets/audio/guide2/guide2_07.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 08 (41s) asignado a Aportes a la Psicología
+  'guide2_08': 'assets/audio/guide2/guide2_08.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 09 (37s) asignado a Comparación Conceptual
+  'guide2_09': 'assets/audio/guide2/guide2_09.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 10 (13s) asignado a Duelo de Ideas
+  'guide2_10': 'assets/audio/guide2/guide2_10.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 11 (38s) asignado a Desafío del Quiz
+  'guide2_11': 'assets/audio/guide2/guide2_11.mp3',
+
+  // ===== GUÍA 3 (Voz Real · Explorador Dinámico) =====
+  // TODO_ASIGNAR_AUDIO: Audio 01 (14s) - Transcripción: Similitudes racionalistas, razón como orden comprensible
+  'guide3_01': 'assets/audio/guide3/guide3_01.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 02 (11s) - Transcripción: Emociones, percepción, memoria y pequeñas percepciones inconscientes
+  'guide3_02': 'assets/audio/guide3/guide3_02.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 03 (10s) - Transcripción: Afectos (alegría, tristeza, deseo) como variaciones de la potencia de actuar
+  'guide3_03': 'assets/audio/guide3/guide3_03.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 04 (10s) - Transcripción: Spinoza sobre creer ser libres ignorando causas vs necesidad comprendida
+  'guide3_04': 'assets/audio/guide3/guide3_04.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 05 (12s) - Transcripción: Leibniz sobre libertad, claridad racional y superar impulsos confusos
+  'guide3_05': 'assets/audio/guide3/guide3_05.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 06 (13s) - Transcripción: Pluralidad de mónadas, unidades simples activas y el mejor de los mundos
+  'guide3_06': 'assets/audio/guide3/guide3_06.mp3',
+  // TODO_ASIGNAR_AUDIO: Audio 07 (9s) - Transcripción: Sustancia única infinita, Deus sive Natura y creador-creación
+  'guide3_07': 'assets/audio/guide3/guide3_07.mp3'
 };
+
+window.philosophicalGuidesConfig = philosophicalGuidesConfig;
+window.guideAudioRegistry = guideAudioRegistry;
 
 class PhilosophicalTrioManager {
   constructor() {
@@ -4157,10 +5122,11 @@ class PhilosophicalTrioManager {
         tip: 'Pulsa ▶ para escuchar la explicación con la voz original.'
       },
       card_deus: {
-        guideId: 'guide1',
-        audioId: null,
-        text: '<strong>Deus sive Natura:</strong> Dios o la Naturaleza. Una única sustancia infinita. Si todo es Dios, tú, el barco, el mar caribeño y yo somos modos de la misma realidad.',
-        tip: 'Geométrico, riguroso y sin superstición.'
+        guideId: 'guide3',
+        // TODO_ASIGNAR_AUDIO: Asignado audio real de Guía 3 (Sustancia única infinita - 9s)
+        audioId: 'guide3_07',
+        text: '<strong>Deus sive Natura:</strong> La realidad es una única sustancia infinita: Dios o la Naturaleza. Todo lo que existe es una expresión de esa sustancia; no hay separación entre creador y creación.',
+        tip: 'Geométrico, riguroso y sin superstición: la unidad absoluta de la realidad.'
       },
       card_determinismo: {
         guideId: 'guide2',
@@ -4171,9 +5137,10 @@ class PhilosophicalTrioManager {
       },
       card_conatus: {
         guideId: 'guide3',
-        audioId: null,
-        text: '<strong>Conatus:</strong> ¡La fuerza de seguir existiendo! Es el impulso que te hace perseverar en tu ser... ¡y sobrevivir con alegría a esta travesía universitaria!',
-        tip: 'Respira la brisa: es filosofía, no un examen final... bueno, casi.'
+        // TODO_ASIGNAR_AUDIO: Asignado audio real de Guía 3 (Conatus y variaciones de potencia de actuar - 10s)
+        audioId: 'guide3_03',
+        text: '<strong>Conatus:</strong> Los afectos (alegría, tristeza, deseo) son variaciones de la potencia de actuar. Comprender racionalmente nuestras emociones es el camino hacia la libertad.',
+        tip: 'Respira la brisa caribeña: comprender las emociones aumenta tu potencia de actuar.'
       },
       'leibniz-section': {
         guideId: 'guide1',
@@ -4197,10 +5164,11 @@ class PhilosophicalTrioManager {
         tip: 'Una coreografía metafísica milimétrica.'
       },
       card_percepciones: {
-        guideId: 'guide1',
-        audioId: null,
-        text: '<strong>Pequeñas percepciones:</strong> Escuchamos el rugido del mar Caribe, aunque no percibimos conscientemente cada gota de agua chocando. ¡Leibniz descubrió el inconsciente perceptual!',
-        tip: 'La mente procesa millones de estímulos bajo el umbral de la conciencia.'
+        guideId: 'guide3',
+        // TODO_ASIGNAR_AUDIO: Asignado audio real de Guía 3 (Pequeñas percepciones, memoria y emociones - 11s)
+        audioId: 'guide3_02',
+        text: '<strong>Pequeñas percepciones:</strong> Las emociones se conectan con la percepción y la memoria. Las pequeñas percepciones influyen en nuestras disposiciones emocionales sin que seamos plenamente conscientes de ello.',
+        tip: 'Leibniz descubrió la base del inconsciente perceptivo y la memoria afectiva.'
       },
       rutas: {
         guideId: 'guide2',
@@ -4421,24 +5389,46 @@ class PhilosophicalTrioManager {
     const vh = window.innerHeight;
     const charW = 75;
     const charH = 130;
-
-    // Los guías siempre se colocan en la base inferior de la pantalla para nunca tapar el texto de las tarjetas
-    const baseY = Math.max(86, vh - charH - 24);
-
     const centerX = vw / 2;
-    const spacing = vw < 768 ? 65 : 100;
 
-    const g1X = centerX - spacing - (charW / 2);
-    const g2X = centerX - (charW / 2);
-    const g3X = centerX + spacing - (charW / 2);
+    let g1Pos, g2Pos, g3Pos;
 
-    this.moveTo('guide1', null, { customX: Math.max(16, g1X), customY: baseY });
-    this.moveTo('guide2', null, { customX: Math.max(16, g2X), customY: baseY });
-    this.moveTo('guide3', null, { customX: Math.min(vw - charW - 16, g3X), customY: baseY });
-
-    if (sectionKey === 'cierre') {
-      this.triggerCelebration();
+    if (sectionKey === 'psicologia') {
+      // Formación Psicología: Tríada de consulta recostada a la izquierda-centro
+      const baseY = Math.max(90, vh - charH - 45);
+      g1Pos = { x: Math.max(20, Math.round(centerX - 190)), y: baseY };
+      g2Pos = { x: Math.max(20, Math.round(centerX - 75)), y: Math.max(90, baseY - 20) };
+      g3Pos = { x: Math.min(vw - charW - 20, Math.round(centerX + 40)), y: baseY };
+    } else if (sectionKey === 'comparacion') {
+      // Formación Comparación: Enfoque simétrico de debate centro
+      const baseY = Math.max(90, vh - charH - 25);
+      g1Pos = { x: Math.max(20, Math.round(centerX - 130)), y: baseY };
+      g2Pos = { x: Math.max(20, Math.round(centerX - 35)), y: baseY };
+      g3Pos = { x: Math.min(vw - charW - 20, Math.round(centerX + 65)), y: baseY };
+    } else if (sectionKey === 'quiz-section') {
+      // Formación Quiz: Escuadrón de aliento recostado a la derecha
+      const baseY = Math.max(90, vh - charH - 35);
+      const rightBase = vw < 768 ? centerX - 60 : Math.min(vw - 260, centerX + 110);
+      g1Pos = { x: Math.max(20, Math.round(rightBase)), y: baseY };
+      g2Pos = { x: Math.max(20, Math.round(rightBase + 75)), y: Math.max(90, baseY - 15) };
+      g3Pos = { x: Math.min(vw - charW - 20, Math.round(rightBase + 150)), y: baseY };
+    } else if (sectionKey === 'cierre') {
+      // Formación Cierre: Podio de victoria central con Guía 2 elevado
+      const baseY = Math.max(90, vh - charH - 50);
+      g1Pos = { x: Math.max(20, Math.round(centerX - 140)), y: baseY };
+      g2Pos = { x: Math.max(20, Math.round(centerX - 35)), y: Math.max(90, baseY - 35) };
+      g3Pos = { x: Math.min(vw - charW - 20, Math.round(centerX + 70)), y: baseY };
+      this.triggerCelebration('high');
+    } else {
+      const baseY = Math.max(90, vh - charH - 30);
+      g1Pos = { x: Math.max(20, Math.round(centerX - 100)), y: baseY };
+      g2Pos = { x: Math.max(20, Math.round(centerX - (charW / 2))), y: baseY };
+      g3Pos = { x: Math.min(vw - charW - 20, Math.round(centerX + 100)), y: baseY };
     }
+
+    this.moveTo('guide1', null, { customX: g1Pos.x, customY: g1Pos.y });
+    this.moveTo('guide2', null, { customX: g2Pos.x, customY: g2Pos.y });
+    this.moveTo('guide3', null, { customX: g3Pos.x, customY: g3Pos.y });
   }
 
   triggerCelebration() {
@@ -4734,13 +5724,14 @@ class PhilosophicalTrioManager {
     }
 
     this.isSpeaking = true;
-    const waveElem = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : 'waveGuide2');
-    const timeElem = document.getElementById(guideId === 'guide1' ? 'audioTime1' : 'audioTime2');
-    const progElem = document.getElementById(guideId === 'guide1' ? 'audioProgress1' : 'audioProgress2');
+    const waveElem = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : guideId === 'guide2' ? 'waveGuide2' : 'waveGuide3');
+    const timeElem = document.getElementById(guideId === 'guide1' ? 'audioTime1' : guideId === 'guide2' ? 'audioTime2' : 'audioTime3');
+    const progElem = document.getElementById(guideId === 'guide1' ? 'audioProgress1' : guideId === 'guide2' ? 'audioProgress2' : 'audioProgress3');
 
     if (waveElem) waveElem.classList.add('playing');
 
     const audio = new Audio();
+    audio.preload = 'metadata';
     this.currentAudio = audio;
     this.currentAudioGuideId = guideId;
 
@@ -4801,13 +5792,17 @@ class PhilosophicalTrioManager {
       window.speechSynthesis.cancel();
     }
     this.isSpeaking = false;
-    ['waveGuide1', 'waveGuide2'].forEach(id => {
+    ['waveGuide1', 'waveGuide2', 'waveGuide3'].forEach(id => {
       const w = document.getElementById(id);
       if (w) w.classList.remove('playing');
     });
-    ['audioProgress1', 'audioProgress2'].forEach(id => {
+    ['audioProgress1', 'audioProgress2', 'audioProgress3'].forEach(id => {
       const p = document.getElementById(id);
       if (p) p.style.width = '0%';
+    });
+    ['audioTime1', 'audioTime2', 'audioTime3'].forEach(id => {
+      const t = document.getElementById(id);
+      if (t) t.textContent = '0:00 / 0:00';
     });
   }
 
@@ -4912,15 +5907,47 @@ class PhilosophicalTrioManager {
       });
     }
 
-    // Guía 3 voz síntesis botón
+    // Guía 3 controles de audio completos (▶ ⏸ ⏹)
     const gPlay3 = document.getElementById('guidePlay3');
+    const gPause3 = document.getElementById('guidePause3');
     const gStop3 = document.getElementById('guideStop3');
     if (gPlay3) {
       gPlay3.addEventListener('click', (e) => {
         e.stopPropagation();
         this.hasUserInteracted = true;
-        const item = this.script[this.currentSection];
-        if (item) this.speakWithSynthesis(item.text, 'guide3');
+        if (this.currentAudio && this.currentAudioGuideId === 'guide3') {
+          this.currentAudio.play();
+          const wave = document.getElementById('waveGuide3');
+          if (wave) wave.classList.add('playing');
+        } else {
+          const item = this.script[this.currentSection] || this.script.hero;
+          if (item.guideId === 'guide3' && item.audioId) {
+            this.playGuideAudio('guide3', item.audioId, item.text);
+          } else {
+            // Asignación inteligente por tema para Guía 3
+            const g3ThemeAudios = {
+              'spinoza-section': 'guide3_07',
+              'leibniz-section': 'guide3_06',
+              'libertad': 'guide3_04',
+              'emociones': 'guide3_03',
+              'psicologia': 'guide3_02',
+              'comparacion': 'guide3_01',
+              'duelo': 'guide3_01'
+            };
+            const track = g3ThemeAudios[this.currentSection] || 'guide3_01';
+            this.playGuideAudio('guide3', track, item.text);
+          }
+        }
+      });
+    }
+    if (gPause3) {
+      gPause3.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (this.currentAudio && this.currentAudioGuideId === 'guide3') {
+          this.currentAudio.pause();
+          const wave = document.getElementById('waveGuide3');
+          if (wave) wave.classList.remove('playing');
+        }
       });
     }
     if (gStop3) {
@@ -4999,9 +6026,21 @@ class PhilosophicalTrioManager {
     }
 
     const item = this.script[this.currentSection] || this.script.hero;
-    this.showBubble(guideId, item.text, item.tip, item.audioId);
-    if (item.audioId && (guideId === 'guide1' || guideId === 'guide2')) {
-      this.playGuideAudio(guideId, item.audioId, item.text);
+    let targetAudioId = null;
+    if (item.guideId === guideId && item.audioId) {
+      targetAudioId = item.audioId;
+    } else {
+      const guideThemes = {
+        guide1: { hero: 'guide1_01', pregunta: 'guide1_02', 'spinoza-section': 'guide1_03', 'leibniz-section': 'guide1_04', comparacion: 'guide1_05', cierre: 'guide1_06' },
+        guide2: { card_determinismo: 'guide2_01', card_monadas: 'guide2_02', card_armonia: 'guide2_03', rutas: 'guide2_04', alma: 'guide2_05', libertad: 'guide2_06', emociones: 'guide2_07', psicologia: 'guide2_08', comparacion: 'guide2_09', duelo: 'guide2_10', 'quiz-section': 'guide2_11' },
+        guide3: { 'spinoza-section': 'guide3_07', 'leibniz-section': 'guide3_06', libertad: 'guide3_04', emociones: 'guide3_03', psicologia: 'guide3_02', comparacion: 'guide3_01', duelo: 'guide3_01' }
+      };
+      targetAudioId = guideThemes[guideId]?.[this.currentSection] || null;
+    }
+
+    this.showBubble(guideId, item.text, item.tip, targetAudioId);
+    if (targetAudioId) {
+      this.playGuideAudio(guideId, targetAudioId, item.text);
     } else {
       this.speakWithSynthesis(item.text, guideId);
     }
@@ -5035,6 +6074,343 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   }
 }
 
+
+// ===================================================================
+// CONTROLADOR DEL MODO EXPOSICIÓN (FASE 6)
+// Optimizado para proyectores (16:9, 1366x768, 1920x1080) y control por teclado / clicker
+// ===================================================================
+const presentationSlides = [
+  { id: 'hero', title: 'Portada · Leibniz & Spinoza' },
+  { id: 'pregunta', title: 'Capítulo I · La Gran Pregunta' },
+  { id: 'spinoza-section', title: 'Capítulo II · Benedictus de Spinoza' },
+  { id: 'leibniz-section', title: 'Capítulo III · Gottfried Leibniz' },
+  { id: 'rutas', title: 'Capítulo IV · Elección de Rutas' },
+  { id: 'alma', title: 'Capítulo V · Alma y Cuerpo' },
+  { id: 'libertad', title: 'Capítulo VI · Libertad y Necesidad' },
+  { id: 'emociones', title: 'Capítulo VII · Dinámica de los Afectos' },
+  { id: 'psicologia', title: 'Capítulo VIII · Aportes a la Psicología' },
+  { id: 'comparacion', title: 'Capítulo IX · Comparación Filosófica' },
+  { id: 'duelo', title: 'Capítulo X · Duelo Dialéctico' },
+  { id: 'viaje', title: 'Capítulo XI · Mapa del Recorrido' },
+  { id: 'quiz-section', title: 'Capítulo XII · Quiz Filosófico' },
+  { id: 'minigame', title: 'Capítulo XIII · Mini-Juego Spinoza o Leibniz' },
+  { id: 'cierre', title: 'Capítulo XIV · Síntesis Final' },
+  { id: 'creditos', title: 'Capítulo XV · Créditos y Bibliografía' }
+];
+
+let isPresentationActive = false;
+let currentSlideIndex = 0;
+let isAudioMuted = false;
+
+function initPresentationMode() {
+  const btnToggle = document.getElementById('btnPresentationMode');
+  const modal = document.getElementById('presentationModal');
+  const btnStart = document.getElementById('btnStartPresentation');
+  const btnClose = document.getElementById('btnClosePresModal');
+  const btnExit = document.getElementById('presBtnExit');
+  const btnPrev = document.getElementById('presBtnPrev');
+  const btnNext = document.getElementById('presBtnNext');
+  const btnAudio = document.getElementById('presBtnAudio');
+  const btnMute = document.getElementById('presBtnMute');
+  const btnGuides = document.getElementById('presBtnGuides');
+  const btnFullscreen = document.getElementById('presBtnFullscreen');
+  const btnReset = document.getElementById('presBtnReset');
+
+  if (btnToggle) {
+    btnToggle.addEventListener('click', () => {
+      if (!isPresentationActive) {
+        if (modal) modal.classList.add('active');
+      } else {
+        exitPresentationMode();
+      }
+    });
+  }
+
+  if (btnClose) {
+    btnClose.addEventListener('click', () => {
+      if (modal) modal.classList.remove('active');
+    });
+  }
+
+  if (btnStart) {
+    btnStart.addEventListener('click', () => {
+      if (modal) modal.classList.remove('active');
+      enterPresentationMode();
+    });
+  }
+
+  if (btnExit) btnExit.addEventListener('click', exitPresentationMode);
+  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
+  if (btnNext) btnNext.addEventListener('click', nextSlide);
+
+  if (btnAudio) {
+    btnAudio.addEventListener('click', () => {
+      if (window.philosophicalGuide) {
+        if (philosophicalGuide.isSpeaking && philosophicalGuide.currentAudio) {
+          if (philosophicalGuide.currentAudio.paused) {
+            philosophicalGuide.currentAudio.play();
+          } else {
+            philosophicalGuide.currentAudio.pause();
+          }
+        } else {
+          philosophicalGuide.onGuideClicked(philosophicalGuide.activeGuideId || 'guide1');
+        }
+      }
+    });
+  }
+
+  if (btnMute) {
+    btnMute.addEventListener('click', () => {
+      isAudioMuted = !isAudioMuted;
+      btnMute.classList.toggle('active', isAudioMuted);
+      if (window.philosophicalGuide && philosophicalGuide.currentAudio) {
+        philosophicalGuide.currentAudio.muted = isAudioMuted;
+      }
+    });
+  }
+
+  if (btnGuides) {
+    btnGuides.addEventListener('click', () => {
+      const toggle = document.getElementById('guideToggleBtn');
+      if (toggle) toggle.click();
+    });
+  }
+
+  if (btnFullscreen) {
+    btnFullscreen.addEventListener('click', toggleFullscreen);
+  }
+
+  if (btnReset) {
+    btnReset.addEventListener('click', resetAllProgress);
+  }
+
+  // Atajos de teclado para la exposición
+  document.addEventListener('keydown', (e) => {
+    // Si modal está abierto y pulsa Enter -> comenzar
+    if (modal && modal.classList.contains('active')) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        modal.classList.remove('active');
+        enterPresentationMode();
+        return;
+      } else if (e.key === 'Escape') {
+        modal.classList.remove('active');
+        return;
+      }
+    }
+
+    if (!isPresentationActive) return;
+
+    // Tecla Escape -> salir
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      exitPresentationMode();
+      return;
+    }
+
+    // Flecha derecha / Abajo / AvPág -> siguiente diapositiva
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
+      e.preventDefault();
+      nextSlide();
+      return;
+    }
+
+    // Flecha izquierda / Arriba / RePág -> diapositiva anterior
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
+      e.preventDefault();
+      prevSlide();
+      return;
+    }
+
+    // Espacio -> reproducir / pausar audio (cuando no se está en un botón o input)
+    if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnAudio) btnAudio.click();
+      return;
+    }
+
+    // M -> silenciar
+    if ((e.key === 'm' || e.key === 'M') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnMute) btnMute.click();
+      return;
+    }
+
+    // G -> alternar guías
+    if ((e.key === 'g' || e.key === 'G') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      if (btnGuides) btnGuides.click();
+      return;
+    }
+
+    // F -> pantalla completa
+    if ((e.key === 'f' || e.key === 'F') && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      toggleFullscreen();
+      return;
+    }
+  });
+}
+
+function enterPresentationMode() {
+  isPresentationActive = true;
+  document.body.classList.add('presentation-mode');
+  
+  // Detectar la diapositiva actual según la posición del scroll
+  let bestIdx = 0;
+  presentationSlides.forEach((slide, idx) => {
+    const el = document.getElementById(slide.id);
+    if (el) {
+      const rect = el.getBoundingClientRect();
+      if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= 0) {
+        bestIdx = idx;
+      }
+    }
+  });
+
+  goToSlide(bestIdx);
+  if (window.lucide) lucide.createIcons();
+}
+
+function exitPresentationMode() {
+  isPresentationActive = false;
+  document.body.classList.remove('presentation-mode');
+  if (document.fullscreenElement) {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+function toggleFullscreen() {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch(() => {});
+  } else {
+    document.exitFullscreen().catch(() => {});
+  }
+}
+
+function goToSlide(index) {
+  if (index < 0) index = 0;
+  if (index >= presentationSlides.length) index = presentationSlides.length - 1;
+  currentSlideIndex = index;
+
+  const slide = presentationSlides[index];
+  const targetEl = document.getElementById(slide.id);
+  if (targetEl) {
+    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (window.philosophicalGuide) {
+      philosophicalGuide.onSectionEnter(slide.id);
+    }
+  }
+
+  // Actualizar HUD
+  const titleEl = document.getElementById('presChapterTitle');
+  const countEl = document.getElementById('presSlideCounter');
+  const fillEl = document.getElementById('presProgressFill');
+  if (titleEl) titleEl.textContent = slide.title;
+  if (countEl) countEl.textContent = `${index + 1} / ${presentationSlides.length}`;
+  if (fillEl) fillEl.style.width = `${((index + 1) / presentationSlides.length) * 100}%`;
+}
+
+function nextSlide() {
+  if (currentSlideIndex < presentationSlides.length - 1) {
+    goToSlide(currentSlideIndex + 1);
+  }
+}
+
+function prevSlide() {
+  if (currentSlideIndex > 0) {
+    goToSlide(currentSlideIndex - 1);
+  }
+}
+
+function resetAllProgress() {
+  try {
+    localStorage.removeItem('spinoza_leibniz_quiz_best');
+    localStorage.removeItem('spinoza_minigame_best');
+  } catch(e) {}
+  
+  if (typeof startQuiz === 'function') startQuiz();
+  if (typeof resetMinigame === 'function') resetMinigame();
+
+  if (window.philosophicalGuide) {
+    philosophicalGuide.visitedSections.clear();
+    philosophicalGuide.stopAllAudio();
+  }
+
+  goToSlide(0);
+}
+
+// Pausar animaciones pesadas y audio cuando la pestaña no es visible
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    document.body.classList.add('tab-hidden-paused');
+    if (window.philosophicalGuide) {
+      philosophicalGuide.stopAllAudio();
+    }
+  } else {
+    document.body.classList.remove('tab-hidden-paused');
+  }
+});
+
+// Inicializar Modo Exposición al cargar DOM
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initPresentationMode);
+} else {
+  initPresentationMode();
+}
+
 </script>
+
+<!-- HUD FLOTANTE PARA MODO EXPOSICIÓN -->
+<div id="presentationHUD" class="presentation-hud" aria-hidden="true">
+  <div class="pres-hud-left">
+    <span class="pres-badge">🎓 Exposición</span>
+    <span id="presChapterTitle" class="pres-title">Capítulo I · Portada</span>
+    <span id="presSlideCounter" class="pres-counter">1 / 16</span>
+  </div>
+  <div class="pres-hud-center">
+    <button id="presBtnPrev" class="pres-nav-btn" type="button" title="Anterior (←)"><i data-lucide="chevron-left" style="width:14px;height:14px"></i> Ant</button>
+    <div class="pres-progress-bar"><div id="presProgressFill" class="pres-progress-fill" style="width:6%"></div></div>
+    <button id="presBtnNext" class="pres-nav-btn" type="button" title="Siguiente (→)">Sig <i data-lucide="chevron-right" style="width:14px;height:14px"></i></button>
+  </div>
+  <div class="pres-hud-right">
+    <button id="presBtnAudio" class="pres-action-btn" type="button" title="Reproducir / Pausar Audio del Guía (Espacio)"><i data-lucide="volume-2" style="width:14px;height:14px"></i> Voz</button>
+    <button id="presBtnMute" class="pres-action-btn" type="button" title="Silenciar (M)"><i data-lucide="volume-x" style="width:14px;height:14px"></i></button>
+    <button id="presBtnGuides" class="pres-action-btn" type="button" title="Alternar Guías (G)"><i data-lucide="users" style="width:14px;height:14px"></i></button>
+    <button id="presBtnFullscreen" class="pres-action-btn" type="button" title="Pantalla Completa (F / F11)"><i data-lucide="maximize" style="width:14px;height:14px"></i></button>
+    <button id="presBtnReset" class="pres-action-btn" type="button" title="Reiniciar Recorrido"><i data-lucide="rotate-ccw" style="width:14px;height:14px"></i> Reiniciar</button>
+    <button id="presBtnExit" class="pres-action-btn btn-pres-exit" type="button" title="Salir de Modo Exposición (Esc)"><i data-lucide="x" style="width:14px;height:14px"></i> Salir</button>
+  </div>
+</div>
+
+<!-- MODAL DE BIENVENIDA A MODO EXPOSICIÓN -->
+<div id="presentationModal" class="presentation-modal-overlay">
+  <div class="presentation-modal">
+    <div class="pres-modal-header">
+      <span style="font-size:2.4rem">⛵</span>
+      <h3>Modo Exposición Académica</h3>
+      <p style="color:var(--text-secondary);font-size:0.92rem;margin-top:4px">
+        Diseñado para proyectar en clase ante el profesor y tus compañeros con controles rápidos de teclado o puntero láser.
+      </p>
+    </div>
+    <div class="pres-modal-shortcuts">
+      <div class="pres-shortcut-item"><span class="pres-key">←</span> <span class="pres-key">→</span> Diapositiva anterior / siguiente</div>
+      <div class="pres-shortcut-item"><span class="pres-key">Espacio</span> Reproducir / pausar voz del guía</div>
+      <div class="pres-shortcut-item"><span class="pres-key">M</span> Silenciar / activar audio</div>
+      <div class="pres-shortcut-item"><span class="pres-key">G</span> Ocultar / mostrar guías</div>
+      <div class="pres-shortcut-item"><span class="pres-key">F</span> Pantalla completa</div>
+      <div class="pres-shortcut-item"><span class="pres-key">Esc</span> Salir de exposición</div>
+    </div>
+    <div class="pres-modal-actions">
+      <button id="btnStartPresentation" class="btn btn-primary" type="button" style="padding:10px 24px">
+        <i data-lucide="play" style="width:16px;height:16px"></i> ¡Comenzar Exposición!
+      </button>
+      <button id="btnClosePresModal" class="btn btn-secondary" type="button" style="padding:10px 18px">
+        Cancelar
+      </button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
