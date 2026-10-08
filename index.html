@@ -275,12 +275,15 @@ function resetAllProgress() {
   goToSlide(0);
 }
 
-// Pausar animaciones pesadas y audio cuando la pestaña no es visible
+// FASE 7: Pausar animaciones y cancelar audio/voz al cambiar de pestaña
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     document.body.classList.add('tab-hidden-paused');
     if (window.philosophicalGuide) {
-      philosophicalGuide.stopAllAudio();
+      window.philosophicalGuide.stopAllAudio();
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
   } else {
     document.body.classList.remove('tab-hidden-paused');
@@ -3245,6 +3248,359 @@ body.presentation-mode .presentation-hud {
   }
 }
 
+
+/* ===== FASE 7 — SISTEMA DE DISEÑO CARIBE COLOMBIANO GLOBAL Y AFINADO ===== */
+
+/* 1. Cenefas Geométricas Inspiradas en Telares Wayuu / Arhuacos */
+.wayuu-pattern-bar {
+  width: 100%;
+  max-width: 480px;
+  height: 6px;
+  margin: 12px auto 18px;
+  background: repeating-linear-gradient(
+    45deg,
+    var(--caribe-turquoise) 0px,
+    var(--caribe-turquoise) 8px,
+    var(--caribe-sun) 8px,
+    var(--caribe-sun) 16px,
+    var(--caribe-coral) 16px,
+    var(--caribe-coral) 24px,
+    var(--caribe-gold) 24px,
+    var(--caribe-gold) 32px
+  );
+  border-radius: 999px;
+  opacity: 0.85;
+}
+
+/* 2. Sol Caribeño Radiante con Pulsación Suave en Hero */
+.caribe-sun-glow {
+  position: absolute;
+  top: 15%;
+  right: 12%;
+  width: 130px;
+  height: 130px;
+  background: radial-gradient(circle, rgba(244, 162, 97, 0.45) 0%, rgba(233, 196, 106, 0.2) 60%, rgba(255, 255, 255, 0) 75%);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: sunGlowPulse 7s ease-in-out infinite alternate;
+  z-index: 1;
+}
+@keyframes sunGlowPulse {
+  0% { transform: scale(0.95); opacity: 0.65; }
+  100% { transform: scale(1.15); opacity: 0.95; }
+}
+
+/* 3. Palmeras Tropicales Vectoriales que se Mecen (CSS/SVG Puro) */
+.caribe-palm-left,
+.caribe-palm-right {
+  position: absolute;
+  bottom: 0;
+  width: 120px;
+  height: 180px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.85;
+}
+.caribe-palm-left {
+  left: 2%;
+  transform-origin: bottom center;
+  animation: palmSwayLeft 6.5s ease-in-out infinite alternate;
+}
+.caribe-palm-right {
+  right: 2%;
+  transform-origin: bottom center;
+  animation: palmSwayRight 7.2s ease-in-out infinite alternate;
+}
+@keyframes palmSwayLeft {
+  0% { transform: rotate(-1.5deg); }
+  100% { transform: rotate(3deg); }
+}
+@keyframes palmSwayRight {
+  0% { transform: rotate(2deg); }
+  100% { transform: rotate(-2.5deg); }
+}
+
+/* 4. Gaviotas Caribeñas en la Lejanía */
+.caribe-seagulls-sky {
+  position: absolute;
+  top: 18%;
+  left: 20%;
+  width: 160px;
+  height: 60px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.6;
+  animation: seagullDrift 22s linear infinite;
+}
+@keyframes seagullDrift {
+  0% { transform: translateX(0); }
+  50% { transform: translateX(60px) translateY(-8px); }
+  100% { transform: translateX(0); }
+}
+
+/* 5. Separadores de Olas Caribeñas entre Secciones */
+.caribe-wave-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  margin: -1px 0;
+}
+.caribe-wave-divider svg {
+  display: block;
+  width: 100%;
+  height: 48px;
+}
+.caribe-wave-divider path {
+  fill: var(--caribe-sand-light);
+}
+
+/* 6. Momentos del Día Caribeños por Sección */
+.caribe-dawn {
+  background: linear-gradient(180deg, #FDFBF7 0%, #FAF0CA 100%);
+}
+.caribe-midday {
+  background: linear-gradient(180deg, #FDFBF7 0%, #E0FBFC 100%);
+}
+.caribe-golden-hour {
+  background: linear-gradient(180deg, #FDFBF7 0%, #F4E8C1 100%);
+}
+.caribe-sunset {
+  background: linear-gradient(180deg, #FDFBF7 0%, #FFE5D9 100%);
+}
+.caribe-night {
+  background: linear-gradient(180deg, #0B2545 0%, #13315C 100%);
+  color: #FFFFFF;
+}
+.caribe-night .section-title {
+  color: #FFFFFF !important;
+}
+.caribe-night .section-subtitle {
+  color: var(--caribe-gold) !important;
+}
+
+/* 7. Interruptor Global de Sonido */
+.btn-sound-global {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+  border: 1.5px solid rgba(255, 255, 255, 0.28);
+  padding: 6px 13px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  margin-left: 6px;
+}
+.btn-sound-global:hover {
+  background: rgba(255, 255, 255, 0.24);
+  transform: translateY(-1px);
+}
+.btn-sound-global.sound-active {
+  background: linear-gradient(135deg, var(--caribe-turquoise) 0%, var(--caribe-sea-deep) 100%);
+  border-color: var(--caribe-gold);
+  color: #FFFFFF;
+  box-shadow: 0 0 14px rgba(0, 168, 150, 0.45);
+}
+
+/* 8. Botón Fallback de Voz del Navegador (Discreto, 100% Manual) */
+.browser-voice-fallback-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(2, 128, 144, 0.08);
+  border: 1px dashed var(--caribe-sea-deep);
+  color: var(--caribe-navy);
+  padding: 5px 11px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: all 0.2s ease;
+}
+.browser-voice-fallback-btn:hover {
+  background: var(--caribe-blue-light);
+  border-style: solid;
+}
+
+/* 9. Botón flotante 'Volver al recorrido' afinado sin solapar */
+.return-journey-btn {
+  bottom: 24px !important;
+  right: 24px !important;
+  z-index: 800 !important;
+  box-shadow: 0 6px 20px rgba(11, 37, 69, 0.25) !important;
+}
+body.presentation-mode .return-journey-btn {
+  display: none !important;
+}
+
+/* 10. Tarjetas Postales Playeras con Elevación Suave */
+.concept-card,
+.phil-card,
+.route-card,
+.psico-card,
+.credito-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease !important;
+}
+.concept-card:hover,
+.phil-card:hover,
+.route-card:hover,
+.psico-card:hover,
+.credito-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 14px 30px rgba(11, 37, 69, 0.12) !important;
+}
+
+
+/* ===== FASE 7 EXTRA: ESCENOGRAFÍA Y CULTURA CARIBE COLOMBIANA ===== */
+
+/* Mariposa Amarilla de Macondo / Caribe */
+.mariposa-amarilla {
+  position: absolute;
+  width: 26px;
+  height: 22px;
+  pointer-events: none;
+  z-index: 4;
+  opacity: 0.85;
+  animation: flutterDrift 14s ease-in-out infinite alternate;
+}
+.mariposa-amarilla svg {
+  width: 100%;
+  height: 100%;
+  fill: #FFD166;
+  filter: drop-shadow(0 2px 4px rgba(231, 111, 81, 0.35));
+}
+@keyframes flutterDrift {
+  0% { transform: translate(0, 0) rotate(0deg) scale(0.9); }
+  25% { transform: translate(60px, -25px) rotate(8deg) scale(1.05); }
+  50% { transform: translate(120px, -10px) rotate(-6deg) scale(0.95); }
+  75% { transform: translate(180px, -35px) rotate(10deg) scale(1); }
+  100% { transform: translate(240px, -15px) rotate(-4deg) scale(0.9); }
+}
+
+/* Sombrero Vueltiao Sello Zenú */
+.sombrero-vueltiao-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  border: 1.5px solid var(--caribe-gold);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #5C4033;
+  box-shadow: 0 4px 12px rgba(233, 196, 106, 0.25);
+  margin-bottom: 8px;
+}
+.sombrero-vueltiao-badge svg {
+  width: 18px;
+  height: 18px;
+}
+
+/* Silueta de Cartagena Colonial en Comparación / Duelo */
+.cartagena-skyline-silhouette {
+  width: 100%;
+  height: 52px;
+  margin-top: 30px;
+  opacity: 0.28;
+  background-repeat: repeat-x;
+  background-size: 380px 52px;
+  background-position: bottom center;
+  pointer-events: none;
+}
+
+/* Capa de Estrellas Titilantes en Quiz (Noche Caribeña) */
+.caribe-stars-layer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  pointer-events: none;
+  background-image: 
+    radial-gradient(1.5px 1.5px at 15% 25%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 35% 15%, #ffd166 100%, transparent),
+    radial-gradient(1px 1px at 55% 35%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 75% 20%, #e0fbfc 100%, transparent),
+    radial-gradient(1.5px 1.5px at 90% 40%, #ffffff 100%, transparent),
+    radial-gradient(1px 1px at 25% 65%, #ffd166 100%, transparent),
+    radial-gradient(1.5px 1.5px at 65% 75%, #ffffff 100%, transparent),
+    radial-gradient(2px 2px at 85% 60%, #e0fbfc 100%, transparent);
+  animation: starsTwinkle 4s ease-in-out infinite alternate;
+  opacity: 0.75;
+}
+@keyframes starsTwinkle {
+  0% { opacity: 0.45; }
+  100% { opacity: 0.9; }
+}
+
+/* Estilo Postal Playera y Elevación de Tarjetas */
+.concept-card, .spinoza-card, .leibniz-card, .glass-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease, border-color 0.28s ease !important;
+  border-radius: 18px !important;
+}
+.concept-card:hover, .spinoza-card:hover, .leibniz-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 16px 36px rgba(0, 100, 140, 0.14) !important;
+  border-color: var(--caribe-turquoise) !important;
+}
+
+/* Divisores de Ola Ondulante entre Secciones */
+.caribe-wave-divider {
+  width: 100%;
+  overflow: hidden;
+  line-height: 0;
+  margin: -1px 0;
+  position: relative;
+  z-index: 2;
+}
+.caribe-wave-divider svg {
+  display: block;
+  width: 100%;
+  height: 42px;
+}
+
+/* Proyector: 1366x768 y 1920x1080 Legibilidad Optimizada */
+@media screen and (min-width: 1280px) {
+  .section-title {
+    font-size: 2.35rem;
+    letter-spacing: -0.02em;
+  }
+  .section-subtitle {
+    font-size: 1.15rem;
+    max-width: 820px;
+  }
+  .concept-card p, .spinoza-card p, .leibniz-card p {
+    font-size: 0.98rem;
+    line-height: 1.62;
+  }
+}
+
+/* Accesibilidad: Foco Visible Elegante */
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
+  outline: 3px solid var(--caribe-turquoise) !important;
+  outline-offset: 3px !important;
+}
+
+/* Modo Movimiento Reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .trio-guide-char {
+    transition: none !important;
+  }
+  .caribe-palm-left, .caribe-palm-right, .caribe-sun-glow, .caribe-seagulls-sky, .mariposa-amarilla, .caribe-stars-layer {
+    animation: none !important;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3273,6 +3629,10 @@ body.presentation-mode .presentation-hud {
       <li><a href="#quiz-section" data-section="quiz-section"><i data-lucide="trophy"></i> Quiz</a></li>
       <li><a href="#creditos" data-section="creditos"><i data-lucide="users"></i> Créditos</a></li>
     </ul>
+        <button class="btn-sound-global" id="globalSoundToggle" type="button" aria-label="Sonido de los guías: Apagado" title="Sonido de los guías (Apagado por defecto - Pulsa para activar)">
+      <i data-lucide="volume-x" id="globalSoundIcon" style="width:14px;height:14px"></i>
+      <span id="globalSoundText">Sonido: Apagado</span>
+    </button>
     <button class="btn-presentation-toggle" id="btnPresentationMode" type="button" aria-label="Activar Modo Exposición" title="Modo Exposición (F11 / Pantalla completa)">
       <i data-lucide="presentation" style="width:15px;height:15px"></i>
       <span>Exposición</span>
@@ -3322,6 +3682,26 @@ body.presentation-mode .presentation-hud {
 
   <!-- ============ HERO ============ -->
   <section id="hero" class="hero-section section visible">
+  <!-- Escenografía Caribeña (SVG/CSS Puro) -->
+  <div class="caribe-sun-glow" aria-hidden="true"></div>
+  <div class="caribe-palm-left" aria-hidden="true">
+    <svg viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 150 Q48 100 45 60 Q43 20 50 10" stroke="#8D5B4C" stroke-width="6" stroke-linecap="round"/>
+      <path d="M50 10 Q20 5 0 25 M50 10 Q15 -10 10 -30 M50 10 Q60 -15 80 -25 M50 10 Q80 15 95 35 M50 10 Q40 40 30 55" stroke="#2A9D8F" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="caribe-palm-right" aria-hidden="true">
+    <svg viewBox="0 0 100 150" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M50 150 Q52 100 55 60 Q57 20 50 10" stroke="#8D5B4C" stroke-width="6" stroke-linecap="round"/>
+      <path d="M50 10 Q80 5 100 25 M50 10 Q85 -10 90 -30 M50 10 Q40 -15 20 -25 M50 10 Q20 15 5 35 M50 10 Q60 40 70 55" stroke="#2A9D8F" stroke-width="5" stroke-linecap="round"/>
+    </svg>
+  </div>
+  <div class="caribe-seagulls-sky" aria-hidden="true">
+    <svg viewBox="0 0 120 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M10 20 Q20 10 30 20 Q40 10 50 20" stroke="#0077B6" stroke-width="2" stroke-linecap="round"/>
+      <path d="M70 15 Q78 8 86 15 Q94 8 102 15" stroke="#0077B6" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  </div>
     <div class="section-tag"><i data-lucide="compass" style="width:16px;height:16px"></i> Experiencia filosófica interactiva</div>
     <h1 class="hero-title">Leibniz × Spinoza</h1>
     <p class="hero-subtitle">Dos formas de leer el mundo</p>
@@ -3419,6 +3799,13 @@ body.presentation-mode .presentation-hud {
     </div>
 </section>
 
+  <!-- Divisor de Ola Caribeña -->
+  <div class="caribe-wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none">
+      <path d="M0,24 C240,44 480,4 720,24 C960,44 1200,4 1440,24 L1440,48 L0,48 Z" fill="rgba(244, 162, 97, 0.12)"></path>
+      <path d="M0,32 C320,8 640,42 960,18 C1280,-4 1440,28 1440,32 L1440,48 L0,48 Z" fill="rgba(42, 157, 143, 0.15)"></path>
+    </svg>
+  </div>
   <!-- ============ SPINOZA ============ -->
   <section id="spinoza-section" class="section">
     <div class="section-header">
@@ -3493,6 +3880,13 @@ body.presentation-mode .presentation-hud {
     </div>
 </section>
 
+  <!-- Divisor de Ola Caribeña -->
+  <div class="caribe-wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none">
+      <path d="M0,24 C240,44 480,4 720,24 C960,44 1200,4 1440,24 L1440,48 L0,48 Z" fill="rgba(244, 162, 97, 0.12)"></path>
+      <path d="M0,32 C320,8 640,42 960,18 C1280,-4 1440,28 1440,32 L1440,48 L0,48 Z" fill="rgba(42, 157, 143, 0.15)"></path>
+    </svg>
+  </div>
   <!-- ============ LEIBNIZ ============ -->
   <section id="leibniz-section" class="section">
     <div class="section-header">
@@ -3744,6 +4138,13 @@ body.presentation-mode .presentation-hud {
 </section>
 
   
+  <!-- Divisor de Ola Caribeña -->
+  <div class="caribe-wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none">
+      <path d="M0,24 C240,44 480,4 720,24 C960,44 1200,4 1440,24 L1440,48 L0,48 Z" fill="rgba(244, 162, 97, 0.12)"></path>
+      <path d="M0,32 C320,8 640,42 960,18 C1280,-4 1440,28 1440,32 L1440,48 L0,48 Z" fill="rgba(42, 157, 143, 0.15)"></path>
+    </svg>
+  </div>
   <!-- ============ APORTES A LA PSICOLOGÍA ============ -->
   <section id="psicologia" class="section caribe-section-psicologia">
     <div class="section-header">
@@ -3826,6 +4227,13 @@ body.presentation-mode .presentation-hud {
   </section>
 
 
+  <!-- Divisor de Ola Caribeña -->
+  <div class="caribe-wave-divider" aria-hidden="true">
+    <svg viewBox="0 0 1440 48" preserveAspectRatio="none">
+      <path d="M0,24 C240,44 480,4 720,24 C960,44 1200,4 1440,24 L1440,48 L0,48 Z" fill="rgba(244, 162, 97, 0.12)"></path>
+      <path d="M0,32 C320,8 640,42 960,18 C1280,-4 1440,28 1440,32 L1440,48 L0,48 Z" fill="rgba(42, 157, 143, 0.15)"></path>
+    </svg>
+  </div>
   <!-- ============ COMPARACIÓN ============ -->
   <section id="comparacion" class="section">
     <div class="section-header">
@@ -4349,6 +4757,11 @@ function playChime(){
 // ===== SPEECH SYNTHESIS (PRESERVED + ENHANCED) =====
 function speakFor(id){
   currentSection = id;
+  // FASE 7: Si el usuario pulsa el botón de audio explícito, activar sonido
+  if (window.philosophicalGuide) {
+    window.philosophicalGuide.soundEnabled = true;
+    window.philosophicalGuide.updateSoundToggleUI();
+  }
   playChime();
   const allBtns = document.querySelectorAll('.audio-btn');
   if(!('speechSynthesis' in window)){
@@ -4396,7 +4809,7 @@ function moveBoat(id){
 function journeyGo(id){
   currentSection = id;
   moveBoat(id);
-  speakFor(id);
+  // FASE 7: Audio solo manual - no reproducir audio automáticamente al mover el barco
   // Scroll to relevant section
   const sectionMap = {
     inicio: 'hero',
@@ -5082,11 +5495,13 @@ window.guideAudioRegistry = guideAudioRegistry;
 class PhilosophicalTrioManager {
   constructor() {
     this.enabled = true;
+    this.soundEnabled = false; // FASE 7: Sonido de los guías APAGADO por defecto
     this.activeGuideId = 'guide1';
     this.currentSection = 'hero';
     this.visitedSections = new Set();
     this.bubbleTimeout = null;
     this.currentAudio = null;
+    this.currentAudioGuideId = null;
     this.isSpeaking = false;
     this.hasUserInteracted = false;
     this.clickCounts = { guide1: 0, guide2: 0, guide3: 0 };
@@ -5511,6 +5926,7 @@ class PhilosophicalTrioManager {
                    this.script[sectionId + '-section'] ? sectionId + '-section' :
                    this.script[sectionId.replace('-section', '')] ? sectionId.replace('-section', '') : null;
     if (mapped && mapped !== this.currentSection) {
+      this.stopAllAudio();
       this.triggerScript(mapped);
     }
   }
@@ -5545,8 +5961,8 @@ class PhilosophicalTrioManager {
       '¡Ánimo! Hasta Leibniz tuvo que recalcular varias veces sus mónadas.'
     ];
     const text = remarks[Math.floor(Math.random() * remarks.length)];
+    // FASE 7: Mostrar reflexión en burbuja sin disparar síntesis de voz automática
     this.showBubble(this.activeGuideId, text, 'Reflejos ontológicos');
-    this.speakWithSynthesis(text, this.activeGuideId);
   }
 
   setActiveGuide(guideId) {
@@ -5568,6 +5984,9 @@ class PhilosophicalTrioManager {
 
   triggerScript(sectionKey, cardElem = null) {
     if (!this.enabled) return;
+    if (this.currentSection && this.currentSection !== sectionKey) {
+      this.stopAllAudio();
+    }
     const item = this.script[sectionKey];
     if (!item) return;
 
@@ -5600,11 +6019,8 @@ class PhilosophicalTrioManager {
       }
     }
 
+    // FASE 7: Mostrar la burbuja de texto con humor y controles, pero CERO sonido automático
     this.showBubble(guideId, item.text, item.tip, item.audioId);
-
-    if (this.hasUserInteracted && item.audioId) {
-      this.playGuideAudio(guideId, item.audioId, item.text);
-    }
   }
 
   showBubble(guideId, text, tip = '', audioId = null) {
@@ -5714,70 +6130,162 @@ class PhilosophicalTrioManager {
     if (bubble) bubble.style.display = 'none';
   }
 
+  
+  // Helper: Obtener la pista real asignada para cualquier guía y sección
+  getTrackForGuide(guideId, sectionKey) {
+    const guide1Tracks = {
+      hero: 'guide1_01',
+      pregunta: 'guide1_02',
+      'spinoza-section': 'guide1_03',
+      'leibniz-section': 'guide1_04',
+      comparacion: 'guide1_05',
+      cierre: 'guide1_06'
+    };
+    const guide2Tracks = {
+      hero: 'guide2_01',
+      pregunta: 'guide2_01',
+      'spinoza-section': 'guide2_01',
+      card_determinismo: 'guide2_01',
+      card_monadas: 'guide2_02',
+      card_armonia: 'guide2_03',
+      rutas: 'guide2_04',
+      alma: 'guide2_05',
+      libertad: 'guide2_06',
+      emociones: 'guide2_07',
+      psicologia: 'guide2_08',
+      comparacion: 'guide2_09',
+      duelo: 'guide2_10',
+      'quiz-section': 'guide2_11'
+    };
+    const guide3Tracks = {
+      hero: 'guide3_01',
+      pregunta: 'guide3_04',
+      'spinoza-section': 'guide3_07',
+      card_deus: 'guide3_07',
+      'leibniz-section': 'guide3_06',
+      card_monadas: 'guide3_06',
+      rutas: 'guide3_01',
+      alma: 'guide3_02',
+      libertad: 'guide3_04',
+      emociones: 'guide3_03',
+      card_conatus: 'guide3_03',
+      card_percepciones: 'guide3_02',
+      psicologia: 'guide3_02',
+      comparacion: 'guide3_01',
+      duelo: 'guide3_01',
+      viaje: 'guide3_01',
+      'quiz-section': 'guide3_01',
+      minigame: 'guide3_01',
+      cierre: 'guide3_01',
+      creditos: 'guide3_01'
+    };
+
+    if (guideId === 'guide1') return guide1Tracks[sectionKey] || 'guide1_01';
+    if (guideId === 'guide2') return guide2Tracks[sectionKey] || 'guide2_01';
+    if (guideId === 'guide3') return guide3Tracks[sectionKey] || 'guide3_01';
+    return 'guide1_01';
+  }
+
+  // Actualizar UI del interruptor global de sonido
+  updateSoundToggleUI() {
+    const icon = document.getElementById('globalSoundIcon');
+    const text = document.getElementById('globalSoundText');
+    const btn = document.getElementById('globalSoundToggle');
+    if (btn) {
+      if (this.soundEnabled) {
+        btn.classList.add('sound-active');
+        btn.setAttribute('aria-label', 'Sonido de los guías: Activado');
+        if (text) text.textContent = 'Sonido: Activado';
+        if (icon) icon.setAttribute('data-lucide', 'volume-2');
+      } else {
+        btn.classList.remove('sound-active');
+        btn.setAttribute('aria-label', 'Sonido de los guías: Apagado');
+        if (text) text.textContent = 'Sonido: Apagado';
+        if (icon) icon.setAttribute('data-lucide', 'volume-x');
+      }
+      try { if (window.lucide) lucide.createIcons(); } catch(e) {}
+    }
+  }
+
+  // Reproducción 100% Unificada de Audios Reales MP3 para los 3 Guías
   playGuideAudio(guideId, audioId, fallbackText) {
     this.stopAllAudio();
+    // Al pulsar ▶ se activa el sonido explícitamente
+    this.soundEnabled = true;
+    this.updateSoundToggleUI();
 
     const audioPath = guideAudioRegistry[audioId];
     if (!audioPath) {
-      this.speakWithSynthesis(fallbackText, guideId);
+      this.showBrowserVoiceFallbackButton(guideId, fallbackText);
       return;
     }
 
     this.isSpeaking = true;
-    const waveElem = document.getElementById(guideId === 'guide1' ? 'waveGuide1' : guideId === 'guide2' ? 'waveGuide2' : 'waveGuide3');
-    const timeElem = document.getElementById(guideId === 'guide1' ? 'audioTime1' : guideId === 'guide2' ? 'audioTime2' : 'audioTime3');
-    const progElem = document.getElementById(guideId === 'guide1' ? 'audioProgress1' : guideId === 'guide2' ? 'audioProgress2' : 'audioProgress3');
+    this.activeGuideId = guideId;
+    const guideNum = guideId.replace('guide', '');
+    const waveElem = document.getElementById(`waveGuide${guideNum}`);
+    const timeElem = document.getElementById(`audioTime${guideNum}`);
+    const progElem = document.getElementById(`audioProgress${guideNum}`);
 
     if (waveElem) waveElem.classList.add('playing');
 
-    const audio = new Audio();
+    const audio = new Audio(audioPath);
     audio.preload = 'metadata';
+    audio.volume = 1.0;
+    audio.muted = false;
     this.currentAudio = audio;
     this.currentAudioGuideId = guideId;
 
-    // Soporte dual .ogg y .mp3
-    let triedFallbackFormat = false;
-
-    const setupListeners = () => {
-      audio.addEventListener('timeupdate', () => {
-        if (!audio.duration) return;
-        const pct = (audio.currentTime / audio.duration) * 100;
-        if (progElem) progElem.style.width = `${pct}%`;
-        if (timeElem) {
-          const curM = Math.floor(audio.currentTime / 60);
-          const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-          const durM = Math.floor(audio.duration / 60);
-          const durS = Math.floor(audio.duration % 60).toString().padStart(2, '0');
-          timeElem.textContent = `${curM}:${curS} / ${durM}:${durS}`;
-        }
-      });
-
-      audio.addEventListener('ended', () => {
-        this.stopAllAudio();
-      });
-
-      audio.addEventListener('error', () => {
-        if (!triedFallbackFormat) {
-          triedFallbackFormat = true;
-          // Si falló .ogg probar .mp3 o viceversa
-          const altPath = audioPath.endsWith('.ogg') ? audioPath.replace('.ogg', '.mp3') : audioPath.replace('.mp3', '.ogg');
-          audio.src = altPath;
-          audio.play().catch(() => {
-            this.speakWithSynthesis(fallbackText, guideId);
-          });
-        } else {
-          this.speakWithSynthesis(fallbackText, guideId);
-        }
-      });
-    };
-
-    setupListeners();
-    audio.src = audioPath;
-    audio.play().catch(e => {
-      // Si la reproducción falla por restricciones de autoplay, espera interacción del usuario
-      console.warn("Audio play prevented or format issue, using fallback:", e);
-      if (waveElem) waveElem.classList.remove('playing');
+    audio.addEventListener('timeupdate', () => {
+      if (!audio.duration) return;
+      const pct = (audio.currentTime / audio.duration) * 100;
+      if (progElem) progElem.style.width = `${pct}%`;
+      if (timeElem) {
+        const curM = Math.floor(audio.currentTime / 60);
+        const curS = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+        const durM = Math.floor(audio.duration / 60);
+        const durS = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+        timeElem.textContent = `${curM}:${curS} / ${durM}:${durS}`;
+      }
     });
+
+    audio.addEventListener('ended', () => {
+      this.stopAllAudio();
+    });
+
+    audio.addEventListener('error', (err) => {
+      console.warn(`Error al cargar pista de ${guideId} (${audioPath}):`, err);
+      this.stopAllAudio();
+      this.showBrowserVoiceFallbackButton(guideId, fallbackText);
+    });
+
+    const playPromise = audio.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(err => {
+        console.warn(`Reproducción de ${guideId} impedida o requiere interacción:`, err);
+        if (waveElem) waveElem.classList.remove('playing');
+        this.isSpeaking = false;
+      });
+    }
+  }
+
+  showBrowserVoiceFallbackButton(guideId, fallbackText) {
+    const bubble = document.getElementById(guideId === 'guide1' ? 'guideSpeech1' : guideId === 'guide2' ? 'guideSpeech2' : 'guideSpeech3');
+    if (!bubble) return;
+    const existing = bubble.querySelector('.browser-voice-fallback-btn');
+    if (existing) existing.remove();
+
+    const btn = document.createElement('button');
+    btn.className = 'browser-voice-fallback-btn';
+    btn.type = 'button';
+    btn.innerHTML = `<i data-lucide="volume-2" style="width:12px;height:12px"></i> Escuchar con voz del navegador`;
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      this.speakWithSynthesis(fallbackText, guideId);
+      btn.remove();
+    });
+    bubble.appendChild(btn);
+    try { if (window.lucide) lucide.createIcons(); } catch(e) {}
   }
 
   stopAllAudio() {
@@ -5788,10 +6296,12 @@ class PhilosophicalTrioManager {
       } catch (e) {}
       this.currentAudio = null;
     }
+    this.currentAudioGuideId = null;
     if ('speechSynthesis' in window) {
       window.speechSynthesis.cancel();
     }
     this.isSpeaking = false;
+
     ['waveGuide1', 'waveGuide2', 'waveGuide3'].forEach(id => {
       const w = document.getElementById(id);
       if (w) w.classList.remove('playing');
@@ -5812,7 +6322,7 @@ class PhilosophicalTrioManager {
     this.isSpeaking = true;
     const cleanText = text.replace(/<[^>]*>/g, '');
     const utter = new SpeechSynthesisUtterance(cleanText);
-    utter.lang = 'es-ES';
+    utter.lang = 'es-CO';
     const cfg = philosophicalGuidesConfig[guideId] || {};
     utter.pitch = cfg.pitch || 1.0;
     utter.rate = cfg.rate || 1.0;
@@ -5833,129 +6343,64 @@ class PhilosophicalTrioManager {
   }
 
   initAudioControls() {
-    // Guía 1 controles
-    const gPlay1 = document.getElementById('guidePlay1');
-    const gPause1 = document.getElementById('guidePause1');
-    const gStop1 = document.getElementById('guideStop1');
-    if (gPlay1) {
-      gPlay1.addEventListener('click', (e) => {
+    // Inicializar interruptor global de sonido en navbar
+    const soundToggle = document.getElementById('globalSoundToggle');
+    if (soundToggle) {
+      soundToggle.addEventListener('click', (e) => {
         e.stopPropagation();
-        this.hasUserInteracted = true;
-        if (this.currentAudio && this.currentAudioGuideId === 'guide1') {
-          this.currentAudio.play();
-          const w = document.getElementById('waveGuide1');
-          if (w) w.classList.add('playing');
-        } else {
-          const item = this.script[this.currentSection];
-          if (item && item.audioId && item.guideId === 'guide1') {
-            this.playGuideAudio('guide1', item.audioId, item.text);
-          }
+        this.soundEnabled = !this.soundEnabled;
+        if (!this.soundEnabled) {
+          this.stopAllAudio();
         }
-      });
-    }
-    if (gPause1) {
-      gPause1.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (this.currentAudio && this.currentAudioGuideId === 'guide1') {
-          this.currentAudio.pause();
-          const w = document.getElementById('waveGuide1');
-          if (w) w.classList.remove('playing');
-        }
-      });
-    }
-    if (gStop1) {
-      gStop1.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.stopAllAudio();
+        this.updateSoundToggleUI();
       });
     }
 
-    // Guía 2 controles
-    const gPlay2 = document.getElementById('guidePlay2');
-    const gPause2 = document.getElementById('guidePause2');
-    const gStop2 = document.getElementById('guideStop2');
-    if (gPlay2) {
-      gPlay2.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.hasUserInteracted = true;
-        if (this.currentAudio && this.currentAudioGuideId === 'guide2') {
-          this.currentAudio.play();
-          const w = document.getElementById('waveGuide2');
-          if (w) w.classList.add('playing');
-        } else {
-          const item = this.script[this.currentSection];
-          if (item && item.audioId && item.guideId === 'guide2') {
-            this.playGuideAudio('guide2', item.audioId, item.text);
-          }
-        }
-      });
-    }
-    if (gPause2) {
-      gPause2.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (this.currentAudio && this.currentAudioGuideId === 'guide2') {
-          this.currentAudio.pause();
-          const w = document.getElementById('waveGuide2');
-          if (w) w.classList.remove('playing');
-        }
-      });
-    }
-    if (gStop2) {
-      gStop2.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.stopAllAudio();
-      });
-    }
+    // Controles idénticos y unificados para los 3 Guías (▶ ⏸ ⏹)
+    ['guide1', 'guide2', 'guide3'].forEach(gid => {
+      const gNum = gid.replace('guide', '');
+      const gPlay = document.getElementById(`guidePlay${gNum}`);
+      const gPause = document.getElementById(`guidePause${gNum}`);
+      const gStop = document.getElementById(`guideStop${gNum}`);
 
-    // Guía 3 controles de audio completos (▶ ⏸ ⏹)
-    const gPlay3 = document.getElementById('guidePlay3');
-    const gPause3 = document.getElementById('guidePause3');
-    const gStop3 = document.getElementById('guideStop3');
-    if (gPlay3) {
-      gPlay3.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.hasUserInteracted = true;
-        if (this.currentAudio && this.currentAudioGuideId === 'guide3') {
-          this.currentAudio.play();
-          const wave = document.getElementById('waveGuide3');
-          if (wave) wave.classList.add('playing');
-        } else {
-          const item = this.script[this.currentSection] || this.script.hero;
-          if (item.guideId === 'guide3' && item.audioId) {
-            this.playGuideAudio('guide3', item.audioId, item.text);
+      if (gPlay) {
+        gPlay.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.hasUserInteracted = true;
+          // Si este mismo audio estaba pausado, reanudar
+          if (this.currentAudio && this.currentAudioGuideId === gid && this.currentAudio.paused) {
+            this.currentAudio.play();
+            const w = document.getElementById(`waveGuide${gNum}`);
+            if (w) w.classList.add('playing');
+            this.isSpeaking = true;
           } else {
-            // Asignación inteligente por tema para Guía 3
-            const g3ThemeAudios = {
-              'spinoza-section': 'guide3_07',
-              'leibniz-section': 'guide3_06',
-              'libertad': 'guide3_04',
-              'emociones': 'guide3_03',
-              'psicologia': 'guide3_02',
-              'comparacion': 'guide3_01',
-              'duelo': 'guide3_01'
-            };
-            const track = g3ThemeAudios[this.currentSection] || 'guide3_01';
-            this.playGuideAudio('guide3', track, item.text);
+            // Reproducir pista correspondiente a esta sección
+            const track = this.getTrackForGuide(gid, this.currentSection);
+            const item = this.script[this.currentSection] || this.script.hero;
+            this.playGuideAudio(gid, track, item.text);
           }
-        }
-      });
-    }
-    if (gPause3) {
-      gPause3.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (this.currentAudio && this.currentAudioGuideId === 'guide3') {
-          this.currentAudio.pause();
-          const wave = document.getElementById('waveGuide3');
-          if (wave) wave.classList.remove('playing');
-        }
-      });
-    }
-    if (gStop3) {
-      gStop3.addEventListener('click', (e) => {
-        e.stopPropagation();
-        this.stopAllAudio();
-      });
-    }
+        });
+      }
+
+      if (gPause) {
+        gPause.addEventListener('click', (e) => {
+          e.stopPropagation();
+          if (this.currentAudio && this.currentAudioGuideId === gid) {
+            this.currentAudio.pause();
+            const w = document.getElementById(`waveGuide${gNum}`);
+            if (w) w.classList.remove('playing');
+            this.isSpeaking = false;
+          }
+        });
+      }
+
+      if (gStop) {
+        gStop.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.stopAllAudio();
+        });
+      }
+    });
   }
 
   initEventListeners() {
@@ -5977,12 +6422,8 @@ class PhilosophicalTrioManager {
           this.hasUserInteracted = true;
           this.setActiveGuide(gid);
           const item = this.script[this.currentSection] || this.script.hero;
+          // FASE 7: Mostrar burbuja sin sonido automático
           this.showBubble(gid, item.text, item.tip, item.audioId);
-          if (item.audioId) {
-            this.playGuideAudio(gid, item.audioId, item.text);
-          } else {
-            this.speakWithSynthesis(item.text, gid);
-          }
         });
       }
     });
@@ -6019,8 +6460,8 @@ class PhilosophicalTrioManager {
         '¡Epa! Esta mónada no tiene ventanas, pero sí tiene cosquillas caribeñas.'
       ];
       const ep = easterPhrases[Math.floor(Math.random() * easterPhrases.length)];
+      // FASE 7: Mostrar texto gracioso sin reproducir voz automáticamente
       this.showBubble(guideId, ep, '¡Easter Egg Costeño desbloqueado!');
-      this.speakWithSynthesis(ep, guideId);
       this.clickCounts[guideId] = 0;
       return;
     }
@@ -6038,12 +6479,9 @@ class PhilosophicalTrioManager {
       targetAudioId = guideThemes[guideId]?.[this.currentSection] || null;
     }
 
+    // FASE 7: Al hacer clic en el guía, mostrar la burbuja de reflexión, pero SIN sonido automático
+    // El audio sonará única y exclusivamente cuando el usuario pulse el botón ▶ en la burbuja
     this.showBubble(guideId, item.text, item.tip, targetAudioId);
-    if (targetAudioId) {
-      this.playGuideAudio(guideId, targetAudioId, item.text);
-    } else {
-      this.speakWithSynthesis(item.text, guideId);
-    }
   }
 
   sayRandomHumor(guideId) {
@@ -6340,12 +6778,15 @@ function resetAllProgress() {
   goToSlide(0);
 }
 
-// Pausar animaciones pesadas y audio cuando la pestaña no es visible
+// FASE 7: Pausar animaciones y cancelar audio/voz al cambiar de pestaña
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
     document.body.classList.add('tab-hidden-paused');
     if (window.philosophicalGuide) {
-      philosophicalGuide.stopAllAudio();
+      window.philosophicalGuide.stopAllAudio();
+    }
+    if ('speechSynthesis' in window) {
+      window.speechSynthesis.cancel();
     }
   } else {
     document.body.classList.remove('tab-hidden-paused');
