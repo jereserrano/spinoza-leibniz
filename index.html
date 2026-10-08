@@ -1065,66 +1065,112 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
   align-items: center;
   gap: 8px;
 }
+/* Hero Trio Guides Cards (Arregladas, grandes y separadas) */
 .hero-trio-guides {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
-  gap: 20px;
+  align-items: stretch;
+  gap: 36px;
   flex-wrap: wrap;
+  margin: 32px 0 36px;
 }
 .hero-guide-card {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 16px 14px 12px;
-  border-radius: var(--radius-md);
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid var(--glass-border);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  transition: var(--transition-spring);
+  text-align: center;
+  padding: 24px 20px 20px;
+  border-radius: 20px;
+  background: rgba(13, 27, 42, 0.75);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
   cursor: pointer;
-  width: 140px;
+  width: 200px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
 }
 .hero-guide-card:hover {
-  transform: translateY(-6px) scale(1.03);
-  background: rgba(255, 255, 255, 0.08);
+  transform: translateY(-8px) scale(1.03);
 }
-.hero-guide-card.card-g1 { border-color: rgba(46, 196, 182, 0.3); }
-.hero-guide-card.card-g1:hover { box-shadow: var(--shadow-glow-teal); }
-.hero-guide-card.card-g2 { border-color: rgba(240, 197, 86, 0.3); }
-.hero-guide-card.card-g2:hover { box-shadow: var(--shadow-glow-gold); }
-.hero-guide-card.card-g3 { border-color: rgba(224, 122, 95, 0.3); }
-.hero-guide-card.card-g3:hover { box-shadow: var(--shadow-glow-coral); }
+.hero-guide-card.card-g1 {
+  border-color: rgba(46, 196, 182, 0.45);
+  background: linear-gradient(180deg, rgba(46, 196, 182, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g1:hover {
+  border-color: var(--turquoise);
+  box-shadow: 0 14px 35px rgba(46, 196, 182, 0.38);
+}
+.hero-guide-card.card-g2 {
+  border-color: rgba(240, 197, 86, 0.45);
+  background: linear-gradient(180deg, rgba(240, 197, 86, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g2:hover {
+  border-color: var(--warm-yellow);
+  box-shadow: 0 14px 35px rgba(240, 197, 86, 0.38);
+}
+.hero-guide-card.card-g3 {
+  border-color: rgba(224, 122, 95, 0.45);
+  background: linear-gradient(180deg, rgba(224, 122, 95, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g3:hover {
+  border-color: var(--coral);
+  box-shadow: 0 14px 35px rgba(224, 122, 95, 0.38);
+}
 
+.hero-guide-avatar-wrap {
+  position: relative;
+  width: 110px;
+  height: 145px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 12px 0 14px;
+  border-radius: 16px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.09) 0%, transparent 70%);
+}
 .hero-guide-avatar {
-  width: 65px;
-  height: 95px;
+  max-width: 100%;
+  max-height: 140px;
   object-fit: contain;
-  margin-bottom: 8px;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.4));
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.5));
   transition: transform 0.3s ease;
 }
 .hero-guide-card:hover .hero-guide-avatar {
   transform: scale(1.08);
 }
+
+.hero-guide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.card-g1 .hero-guide-pill { background: rgba(46, 196, 182, 0.18); color: var(--turquoise); border: 1px solid var(--turquoise); }
+.card-g2 .hero-guide-pill { background: rgba(240, 197, 86, 0.18); color: var(--warm-yellow); border: 1px solid var(--warm-yellow); }
+.card-g3 .hero-guide-pill { background: rgba(224, 122, 95, 0.18); color: var(--coral); border: 1px solid var(--coral); }
+
 .hero-guide-name {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.92rem;
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--white);
-  margin-bottom: 2px;
+  margin-bottom: 4px;
 }
-.hero-guide-card.card-g1 .hero-guide-name { color: var(--turquoise); }
-.hero-guide-card.card-g2 .hero-guide-name { color: var(--warm-yellow); }
-.hero-guide-card.card-g3 .hero-guide-name { color: var(--coral); }
+.card-g1 .hero-guide-name { color: var(--turquoise); }
+.card-g2 .hero-guide-name { color: var(--warm-yellow); }
+.card-g3 .hero-guide-name { color: var(--coral); }
 
 .hero-guide-role {
-  font-size: 0.72rem;
-  color: var(--text-light);
-  font-weight: 500;
-  text-align: center;
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
 }
 .hero-guide-pill {
   position: absolute;
@@ -1851,6 +1897,113 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
   }
 }
 
+
+/* Hero Trio Guides Cards (Arregladas, grandes y separadas) */
+.hero-trio-guides {
+  display: flex;
+  justify-content: center;
+  align-items: stretch;
+  gap: 36px;
+  flex-wrap: wrap;
+  margin: 28px 0 36px;
+}
+.hero-guide-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 24px 20px 18px;
+  border-radius: 20px;
+  background: rgba(13, 27, 42, 0.75);
+  border: 1.5px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  transition: transform 0.3s cubic-bezier(0.34, 1.2, 0.64, 1), box-shadow 0.3s ease, border-color 0.3s ease;
+  cursor: pointer;
+  width: 195px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+.hero-guide-card:hover {
+  transform: translateY(-8px) scale(1.03);
+}
+.hero-guide-card.card-g1 {
+  border-color: rgba(46, 196, 182, 0.45);
+  background: linear-gradient(180deg, rgba(46, 196, 182, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g1:hover {
+  border-color: var(--turquoise);
+  box-shadow: 0 12px 35px rgba(46, 196, 182, 0.35);
+}
+.hero-guide-card.card-g2 {
+  border-color: rgba(240, 197, 86, 0.45);
+  background: linear-gradient(180deg, rgba(240, 197, 86, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g2:hover {
+  border-color: var(--warm-yellow);
+  box-shadow: 0 12px 35px rgba(240, 197, 86, 0.35);
+}
+.hero-guide-card.card-g3 {
+  border-color: rgba(224, 122, 95, 0.45);
+  background: linear-gradient(180deg, rgba(224, 122, 95, 0.08) 0%, rgba(13, 27, 42, 0.9) 100%);
+}
+.hero-guide-card.card-g3:hover {
+  border-color: var(--coral);
+  box-shadow: 0 12px 35px rgba(224, 122, 95, 0.35);
+}
+
+.hero-guide-avatar-wrap {
+  position: relative;
+  width: 110px;
+  height: 145px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 10px 0 14px;
+  border-radius: 16px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+}
+.hero-guide-avatar {
+  max-width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.5));
+  transition: transform 0.3s ease;
+}
+.hero-guide-card:hover .hero-guide-avatar {
+  transform: scale(1.08);
+}
+.hero-guide-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 30px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.card-g1 .hero-guide-pill { background: rgba(46, 196, 182, 0.18); color: var(--turquoise); border: 1px solid var(--turquoise); }
+.card-g2 .hero-guide-pill { background: rgba(240, 197, 86, 0.18); color: var(--warm-yellow); border: 1px solid var(--warm-yellow); }
+.card-g3 .hero-guide-pill { background: rgba(224, 122, 95, 0.18); color: var(--coral); border: 1px solid var(--coral); }
+
+.hero-guide-name {
+  font-family: 'Playfair Display', Georgia, serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--white);
+  margin-bottom: 4px;
+}
+.card-g1 .hero-guide-name { color: var(--turquoise); }
+.card-g2 .hero-guide-name { color: var(--warm-yellow); }
+.card-g3 .hero-guide-name { color: var(--coral); }
+.hero-guide-role {
+  font-size: 0.78rem;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+}
+
 </style>
 </head>
 <body>
@@ -1946,35 +2099,29 @@ h1, h2, h3, h4 { font-family: 'Outfit', sans-serif; line-height: 1.2; }
       <div class="hero-trio-title"><i data-lucide="users" style="width:15px;height:15px"></i> Travesía guiada por 3 compañeros</div>
       <div class="hero-trio-guides">
         <div class="hero-guide-card card-g1" data-guide="guide1" title="Haz clic para activar a Guía 1 (Compañero Real · Audios Reales)">
-          <span class="hero-guide-pill">Voz Real</span>
-          <img src="assets/images/guide1.png" alt="Guía 1 (Compañero Real)" class="hero-guide-avatar">
+          <span class="hero-guide-pill"><i data-lucide="mic" style="width:12px;height:12px"></i> Voz Real</span>
+          <div class="hero-guide-avatar-wrap">
+            <img src="assets/images/guide1.png" alt="Guía 1 (Compañero Real)" class="hero-guide-avatar">
+          </div>
           <div class="hero-guide-name">Guía 1</div>
           <div class="hero-guide-role">Compañero Real · Voz Original</div>
         </div>
+
         <div class="hero-guide-card card-g2" data-guide="guide2" title="Haz clic para activar a Guía 2 (Stickman Spinoziano)">
-          <span class="hero-guide-pill">Spinoziano</span>
-          <img src="assets/images/guide2.png" alt="Guía 2 (Stickman Spinoziano)" class="hero-guide-avatar">
+          <span class="hero-guide-pill"><i data-lucide="book" style="width:12px;height:12px"></i> Spinoziano</span>
+          <div class="hero-guide-avatar-wrap">
+            <img src="assets/images/guide2.png" alt="Guía 2 (Stickman Spinoziano)" class="hero-guide-avatar">
+          </div>
           <div class="hero-guide-name">Guía 2</div>
           <div class="hero-guide-role">El Sabio Racionalista</div>
         </div>
+
         <div class="hero-guide-card card-g3" data-guide="guide3" title="Haz clic para activar a Guía 3 (El Intérprete Dinámico)">
           <!-- // TODO_FOTO_GUIA3: Pendiente recibir foto del 3er compañero para sustituir silueta -->
-          <span class="hero-guide-pill">Dinámico</span>
-          <img src="assets/images/guide3.png" alt="Guía 3 (Intérprete Dinámico)" class="hero-guide-avatar">
-          <div class="hero-guide-name">Guía 3</div>
-          <div class="hero-guide-role">El Intérprete Vital</div>
-        </div>
-      </div>
-    </div>
-        <div class="hero-guide-card card-g2" data-guide="guide2" title="Haz clic para activar a Guía 2">
-          <span class="hero-guide-pill">Curioso</span>
-          <img src="assets/images/guide2.png" alt="Guía 2" class="hero-guide-avatar">
-          <div class="hero-guide-name">Guía 2</div>
-          <div class="hero-guide-role">El Investigador Inquieto</div>
-        </div>
-        <div class="hero-guide-card card-g3" data-guide="guide3" title="Haz clic para activar a Guía 3">
-          <span class="hero-guide-pill">Dinámico</span>
-          <img src="assets/images/guide3.png" alt="Guía 3" class="hero-guide-avatar">
+          <span class="hero-guide-pill"><i data-lucide="sparkles" style="width:12px;height:12px"></i> Dinámico</span>
+          <div class="hero-guide-avatar-wrap">
+            <img src="assets/images/guide3.png" alt="Guía 3 (Intérprete Dinámico)" class="hero-guide-avatar">
+          </div>
           <div class="hero-guide-name">Guía 3</div>
           <div class="hero-guide-role">El Intérprete Vital</div>
         </div>
@@ -3279,14 +3426,20 @@ const philosophicalGuidesConfig = {
 };
 
 // Registro de pistas de audio reales convertidas a MP3 para compatibilidad universal
+// Registro de pistas de audio reales del Guía 1 (organizadas por orden temático)
 const guideAudioRegistry = {
-  // TODO_ASIGNAR: Asignaciones provisionales basadas en las transcripciones exactas:
-  'guide1_spinoza_bio': 'assets/audio/guide1/guide1_audio_01.mp3', // Audio 1: Spinoza Amsterdam 1632, excomulgado a los 23 años, pulidor de lentes
-  'guide1_leibniz_bio': 'assets/audio/guide1/guide1_audio_02.mp3', // Audio 2: Leibniz Leipzig 1646, influencer académico, diplomático, cálculo vs Newton
-  'guide1_psicologia_intro': 'assets/audio/guide1/guide1_audio_03.mp3', // Audio 3: Intro aportes a la psicología
-  'guide1_emociones': 'assets/audio/guide1/guide1_audio_04.mp3', // Audio 4: Spinoza y psicología de emociones (deseo, alegría, tristeza; terapia cognitiva)
-  'guide1_inconsciente': 'assets/audio/guide1/guide1_audio_05.mp3', // Audio 5: Leibniz y el inconsciente (pequeñas percepciones, sonido del mar)
-  'guide1_procesos_mentales': 'assets/audio/guide1/guide1_audio_06.mp3' // Audio 6: Leibniz y millones de procesos inconscientes bajo la conciencia
+  // Orden 1: Spinoza Ámsterdam 1632, excomunión a los 23 años, pulidor de lentes
+  'guide1_01_spinoza_bio': 'assets/audio/guide1/01_spinoza_biografia.mp3',
+  // Orden 2: Leibniz Leipzig 1646, influencer académico, diplomático, cálculo vs Newton
+  'guide1_02_leibniz_bio': 'assets/audio/guide1/02_leibniz_biografia.mp3',
+  // Orden 3: Spinoza y psicología de las emociones (deseo, alegría, tristeza; terapia cognitiva)
+  'guide1_03_emociones': 'assets/audio/guide1/03_spinoza_emociones.mp3',
+  // Orden 4: Leibniz y el inconsciente (pequeñas percepciones, sonido del mar)
+  'guide1_04_inconsciente': 'assets/audio/guide1/04_leibniz_inconsciente.mp3',
+  // Orden 5: Leibniz y millones de procesos bajo el umbral de la conciencia
+  'guide1_05_procesos_mente': 'assets/audio/guide1/05_leibniz_procesos_mente.mp3',
+  // Transición breve a psicología
+  'guide1_intro_psicologia': 'assets/audio/guide1/guide1_audio_03.mp3'
 };
 
 class PhilosophicalTrioManager {
@@ -3324,7 +3477,7 @@ class PhilosophicalTrioManager {
       'spinoza-section': {
         guideId: 'guide1',
         // TODO_ASIGNAR: Asignado provisionalmente Audio 01 (Biografía y contexto de Spinoza)
-        audioId: 'guide1_spinoza_bio',
+        audioId: 'guide1_01_spinoza_bio',
         text: '<strong>Baruch Spinoza (1632):</strong> Excomulgado a los 23 años por rechazar un Dios antropomórfico, pulió lentes para preservar su libertad de pensamiento. Para él, Dios y la Naturaleza son una sola sustancia.',
         tip: 'Pulsa "Audio" para escuchar la explicación con la voz original.'
       },
@@ -3349,7 +3502,7 @@ class PhilosophicalTrioManager {
       'leibniz-section': {
         guideId: 'guide1',
         // TODO_ASIGNAR: Asignado provisionalmente Audio 02 (Biografía y contexto de Leibniz)
-        audioId: 'guide1_leibniz_bio',
+        audioId: 'guide1_02_leibniz_bio',
         text: '<strong>Gottfried Leibniz (1646):</strong> Diplomático, influencer académico de Europa e inventor del cálculo. Frente al monismo, él ve el universo como infinitas mónadas en armonía.',
         tip: 'Pulsa "Audio" para escuchar la anécdota histórica sobre Newton y Leibniz.'
       },
@@ -3368,7 +3521,7 @@ class PhilosophicalTrioManager {
       card_percepciones: {
         guideId: 'guide1',
         // TODO_ASIGNAR: Asignado provisionalmente Audio 05 (Pequeñas percepciones e inconsciente)
-        audioId: 'guide1_inconsciente',
+        audioId: 'guide1_04_inconsciente',
         text: '<strong>Pequeñas percepciones:</strong> Escuchamos el rugido del mar, aunque no percibimos conscientemente cada gota de agua chocando. ¡Leibniz descubrió el inconsciente mucho antes del psicoanálisis!',
         tip: 'Pulsa "Audio" para escuchar la metáfora del mar.'
       },
@@ -3394,14 +3547,14 @@ class PhilosophicalTrioManager {
       emociones: {
         guideId: 'guide1',
         // TODO_ASIGNAR: Asignado provisionalmente Audio 04 (Spinoza y psicología de las emociones)
-        audioId: 'guide1_emociones',
+        audioId: 'guide1_03_emociones',
         text: '<strong>Psicología de las emociones:</strong> Spinoza no veía las pasiones como pecados, sino como matemáticas. Las emociones derivan de deseo, alegría y tristeza. Solo vences un afecto negativo con otro más fuerte.',
         tip: 'Pulsa "Audio" para escuchar cómo esto funda la terapia cognitiva actual.'
       },
       comparacion: {
         guideId: 'guide1',
         // TODO_ASIGNAR: Asignado provisionalmente Audio 06 (Procesos inconscientes y modernidad)
-        audioId: 'guide1_procesos_mentales',
+        audioId: 'guide1_05_procesos_mente',
         text: 'En nuestra mente ocurren millones de procesos bajo el umbral de la conciencia. Aquí tienes el cara a cara definitivo entre el pulidor de lentes y el genio diplomático.',
         tip: 'Compara punto a punto cómo ambos sentaron las bases del pensamiento contemporáneo.'
       },
@@ -3509,42 +3662,32 @@ class PhilosophicalTrioManager {
 
   // FASE 3: ENTRADA PROGRESIVA EN EL HERO
   heroEntrance() {
-    const heroSec = document.getElementById('hero');
-    const heroCards = document.querySelector('.hero-trio-guides');
-    const target = heroCards || heroSec;
-    if (!target) return;
-
     const vw = window.innerWidth;
     const vh = window.innerHeight;
+    const charH = 130;
+    const baseY = Math.max(50, vh - charH - 24);
 
-    // Posiciones iniciales fuera de pantalla
-    this.setCharPos('guide1', -100, vh - 220, false);
-    this.setCharPos('guide2', -100, vh - 220, false);
-    this.setCharPos('guide3', -100, vh - 220, false);
+    // Entrada progresiva caminando en la parte inferior de la pantalla, bien separados
+    const centerX = vw / 2;
+    const g1X = Math.max(20, centerX - 160);
+    const g2X = centerX - 35;
+    const g3X = Math.min(vw - 95, centerX + 90);
 
-    // Entrada progresiva con caminata hacia posiciones de bienvenida
-    setTimeout(() => {
-      const g1X = Math.max(20, vw * 0.12);
-      this.moveTo('guide1', null, { customX: g1X, customY: vh - 180 });
-    }, 200);
+    this.setCharPos('guide1', -80, baseY, false);
+    this.setCharPos('guide2', -80, baseY, false);
+    this.setCharPos('guide3', -80, baseY, false);
 
-    setTimeout(() => {
-      const g2X = Math.max(90, vw * 0.12 + 85);
-      this.moveTo('guide2', null, { customX: g2X, customY: vh - 180 });
-    }, 600);
-
-    setTimeout(() => {
-      const g3X = Math.max(160, vw * 0.12 + 170);
-      this.moveTo('guide3', null, { customX: g3X, customY: vh - 180 });
-    }, 1000);
+    setTimeout(() => { this.moveTo('guide1', null, { customX: g1X, customY: baseY }); }, 200);
+    setTimeout(() => { this.moveTo('guide2', null, { customX: g2X, customY: baseY }); }, 600);
+    setTimeout(() => { this.moveTo('guide3', null, { customX: g3X, customY: baseY }); }, 1000);
 
     setTimeout(() => {
       this.triggerScript('hero');
     }, 1800);
   }
 
-  // FASE 3: MOVIMIENTO FÍSICO REAL POR LA PANTALLA (moveTo)
-  moveTo(guideId, targetSelectorOrElem, placement = 'side') {
+  // FASE 3: MOVIMIENTO FÍSICO REAL EN LA PARTE INFERIOR DE LA PANTALLA
+  moveTo(guideId, targetSelectorOrElem, placement = 'bottom') {
     if (!this.enabled) return;
     const char = document.getElementById(guideId === 'guide1' ? 'guideChar1' : guideId === 'guide2' ? 'guideChar2' : 'guideChar3');
     if (!char) return;
@@ -3561,42 +3704,30 @@ class PhilosophicalTrioManager {
     const vw = window.innerWidth;
     const vh = window.innerHeight;
 
+    // Los guías se sitúan SIEMPRE en la parte inferior de la pantalla
+    let destY = Math.max(50, vh - charH - 24);
     let destX = 30;
-    let destY = 120;
 
     if (placement && typeof placement === 'object' && placement.customX !== undefined) {
       destX = placement.customX;
-      destY = placement.customY;
+      if (placement.customY !== undefined) destY = placement.customY;
     } else if (target) {
       const rect = target.getBoundingClientRect();
       this.targetElement = target;
 
-      // En móviles (<768px), ubicaciones compactas sin tapar botones o sliders
-      if (vw < 768) {
-        destX = Math.max(12, Math.min(vw - charW - 12, rect.right - charW - 10));
-        destY = Math.max(65, Math.min(vh - charH - 20, rect.top - charH + 20));
-      } else {
-        // Cálculo de posición adyacente que NO tape tarjetas, sliders ni botones
-        if (rect.right + charW + 25 < vw) {
-          destX = rect.right + 18;
-          destY = rect.top + Math.min(30, rect.height * 0.15);
-        } else if (rect.left - charW - 20 > 0) {
-          destX = rect.left - charW - 18;
-          destY = rect.top + Math.min(30, rect.height * 0.15);
-        } else {
-          // Si la tarjeta abarca todo el ancho, situar en la esquina superior derecha del contenedor
-          destX = Math.max(20, vw - charW - 30);
-          destY = Math.max(70, rect.top + 10);
-        }
-      }
+      // Centrar horizontalmente respecto al elemento objetivo (tarjeta o columna)
+      destX = rect.left + (rect.width / 2) - (charW / 2);
+    } else {
+      // Posición por defecto en la parte inferior
+      destX = guideId === 'guide1' ? (vw * 0.2) : (guideId === 'guide2' ? (vw * 0.45) : (vw * 0.7));
     }
 
-    // Clamping para asegurar que nunca se salga del viewport
-    destX = Math.max(10, Math.min(vw - charW - 15, destX));
-    destY = Math.max(65, Math.min(vh - charH - 20, destY));
+    // Clamping para asegurar que nunca se salgan del marco visible
+    destX = Math.max(16, Math.min(vw - charW - 20, destX));
+    destY = Math.max(50, Math.min(vh - charH - 18, destY));
 
     // Determinar dirección de marcha (scaleX(-1) si va a la izquierda)
-    const prevPos = this.positions[guideId] || { x: 30, y: 120 };
+    const prevPos = this.positions[guideId] || { x: 30, y: destY };
     const movingLeft = destX < prevPos.x;
 
     char.classList.add('is-walking');
@@ -3609,12 +3740,45 @@ class PhilosophicalTrioManager {
     char.style.transform = `translate3d(${Math.round(destX)}px, ${Math.round(destY)}px, 0)`;
     this.positions[guideId] = { x: destX, y: destY };
 
-    // Finalización de caminata y gesto de señalamiento
+    // Finalización de caminata y señalamiento
     setTimeout(() => {
       char.classList.remove('is-walking');
       char.classList.add('is-pointing');
       setTimeout(() => char.classList.remove('is-pointing'), 1600);
     }, 850);
+  }
+
+  // Acompañamiento de los guías secundarios en la parte inferior
+  positionCompanionGuides(activeGuideId, primaryTarget) {
+    const guides = ['guide1', 'guide2', 'guide3'];
+    const secondaries = guides.filter(g => g !== activeGuideId);
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const primaryPos = this.positions[activeGuideId] || { x: 40, y: vh - 150 };
+    const charH = 130;
+    const baseY = Math.max(50, vh - charH - 24);
+
+    if (vw < 768) {
+      secondaries.forEach(gid => {
+        const c = document.getElementById(gid === 'guide1' ? 'guideChar1' : gid === 'guide2' ? 'guideChar2' : 'guideChar3');
+        if (c) c.style.opacity = '0';
+      });
+      return;
+    }
+
+    secondaries.forEach((gid, idx) => {
+      const c = document.getElementById(gid === 'guide1' ? 'guideChar1' : gid === 'guide2' ? 'guideChar2' : 'guideChar3');
+      if (c) c.style.opacity = '0.85';
+
+      // Posicionarse en la parte inferior bien separados a los lados
+      const offset = (idx === 0 ? 115 : -115);
+      let targetX = primaryPos.x + offset;
+      targetX = Math.max(16, Math.min(vw - 95, targetX));
+
+      setTimeout(() => {
+        this.moveTo(gid, null, { customX: targetX, customY: baseY });
+      }, (idx + 1) * 220);
+    });
   }
 
   setCharPos(guideId, x, y, animated = true) {
@@ -3723,12 +3887,30 @@ class PhilosophicalTrioManager {
   }
 
   showBubble(guideId, text, tip = '', audioId = null) {
-    // Ocultar burbujas anteriores
+    // Ocultar otras burbujas
     ['guide1', 'guide2', 'guide3'].forEach(gid => this.hideBubble(gid));
 
     const bubble = document.getElementById(guideId === 'guide1' ? 'guideSpeech1' : guideId === 'guide2' ? 'guideSpeech2' : 'guideSpeech3');
     const textElem = document.getElementById(guideId === 'guide1' ? 'guideText1' : guideId === 'guide2' ? 'guideText2' : 'guideText3');
+    const char = document.getElementById(guideId === 'guide1' ? 'guideChar1' : guideId === 'guide2' ? 'guideChar2' : 'guideChar3');
     if (!bubble || !textElem) return;
+
+    // Ajustar posición de la burbuja para que nunca se corte en los bordes de la pantalla
+    const anchor = char ? char.querySelector('.trio-bubble-anchor') : null;
+    if (anchor && this.positions[guideId]) {
+      const posX = this.positions[guideId].x;
+      const vw = window.innerWidth;
+      if (posX < 160) {
+        anchor.style.left = '0%';
+        anchor.style.transform = 'translateX(0%)';
+      } else if (posX > vw - 220) {
+        anchor.style.left = '100%';
+        anchor.style.transform = 'translateX(-100%)';
+      } else {
+        anchor.style.left = '50%';
+        anchor.style.transform = 'translateX(-50%)';
+      }
+    }
 
     let fullText = text;
     if (tip) {
@@ -3739,7 +3921,6 @@ class PhilosophicalTrioManager {
     bubble.dataset.audioId = audioId || '';
     bubble.dataset.fallbackText = text.replace(/<[^>]+>/g, '');
 
-    // Resetear timer de auto-cierre
     if (this.bubbleTimeout) clearTimeout(this.bubbleTimeout);
     this.bubbleTimeout = setTimeout(() => {
       this.hideBubble(guideId);
