@@ -9,295 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;0,800;1,600&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js">
-// ===================================================================
-// CONTROLADOR DEL MODO EXPOSICIÓN (FASE 6)
-// Optimizado para proyectores (16:9, 1366x768, 1920x1080) y control por teclado / clicker
-// ===================================================================
-const presentationSlides = [
-  { id: 'hero', title: 'Portada · Leibniz & Spinoza' },
-  { id: 'pregunta', title: 'Capítulo I · La Gran Pregunta' },
-  { id: 'spinoza-section', title: 'Capítulo II · Benedictus de Spinoza' },
-  { id: 'leibniz-section', title: 'Capítulo III · Gottfried Leibniz' },
-  { id: 'rutas', title: 'Capítulo IV · Elección de Rutas' },
-  { id: 'alma', title: 'Capítulo V · Alma y Cuerpo' },
-  { id: 'libertad', title: 'Capítulo VI · Libertad y Necesidad' },
-  { id: 'emociones', title: 'Capítulo VII · Dinámica de los Afectos' },
-  { id: 'psicologia', title: 'Capítulo VIII · Aportes a la Psicología' },
-  { id: 'comparacion', title: 'Capítulo IX · Comparación Filosófica' },
-  { id: 'duelo', title: 'Capítulo X · Duelo Dialéctico' },
-  { id: 'viaje', title: 'Capítulo XI · Mapa del Recorrido' },
-  { id: 'quiz-section', title: 'Capítulo XII · Quiz Filosófico' },
-  { id: 'minigame', title: 'Capítulo XIII · Mini-Juego Spinoza o Leibniz' },
-  { id: 'cierre', title: 'Capítulo XIV · Síntesis Final' },
-  { id: 'creditos', title: 'Capítulo XV · Créditos y Bibliografía' }
-];
-
-let isPresentationActive = false;
-let currentSlideIndex = 0;
-let isAudioMuted = false;
-
-function initPresentationMode() {
-  const btnToggle = document.getElementById('btnPresentationMode');
-  const modal = document.getElementById('presentationModal');
-  const btnStart = document.getElementById('btnStartPresentation');
-  const btnClose = document.getElementById('btnClosePresModal');
-  const btnExit = document.getElementById('presBtnExit');
-  const btnPrev = document.getElementById('presBtnPrev');
-  const btnNext = document.getElementById('presBtnNext');
-  const btnAudio = document.getElementById('presBtnAudio');
-  const btnMute = document.getElementById('presBtnMute');
-  const btnGuides = document.getElementById('presBtnGuides');
-  const btnFullscreen = document.getElementById('presBtnFullscreen');
-  const btnReset = document.getElementById('presBtnReset');
-
-  if (btnToggle) {
-    btnToggle.addEventListener('click', () => {
-      if (!isPresentationActive) {
-        if (modal) modal.classList.add('active');
-      } else {
-        exitPresentationMode();
-      }
-    });
-  }
-
-  if (btnClose) {
-    btnClose.addEventListener('click', () => {
-      if (modal) modal.classList.remove('active');
-    });
-  }
-
-  if (btnStart) {
-    btnStart.addEventListener('click', () => {
-      if (modal) modal.classList.remove('active');
-      enterPresentationMode();
-    });
-  }
-
-  if (btnExit) btnExit.addEventListener('click', exitPresentationMode);
-  if (btnPrev) btnPrev.addEventListener('click', prevSlide);
-  if (btnNext) btnNext.addEventListener('click', nextSlide);
-
-  if (btnAudio) {
-    btnAudio.addEventListener('click', () => {
-      if (window.philosophicalGuide) {
-        if (philosophicalGuide.isSpeaking && philosophicalGuide.currentAudio) {
-          if (philosophicalGuide.currentAudio.paused) {
-            philosophicalGuide.currentAudio.play();
-          } else {
-            philosophicalGuide.currentAudio.pause();
-          }
-        } else {
-          philosophicalGuide.onGuideClicked(philosophicalGuide.activeGuideId || 'guide1');
-        }
-      }
-    });
-  }
-
-  if (btnMute) {
-    btnMute.addEventListener('click', () => {
-      isAudioMuted = !isAudioMuted;
-      btnMute.classList.toggle('active', isAudioMuted);
-      if (window.philosophicalGuide && philosophicalGuide.currentAudio) {
-        philosophicalGuide.currentAudio.muted = isAudioMuted;
-      }
-    });
-  }
-
-  if (btnGuides) {
-    btnGuides.addEventListener('click', () => {
-      const toggle = document.getElementById('guideToggleBtn');
-      if (toggle) toggle.click();
-    });
-  }
-
-  if (btnFullscreen) {
-    btnFullscreen.addEventListener('click', toggleFullscreen);
-  }
-
-  if (btnReset) {
-    btnReset.addEventListener('click', resetAllProgress);
-  }
-
-  // Atajos de teclado para la exposición
-  document.addEventListener('keydown', (e) => {
-    // Si modal está abierto y pulsa Enter -> comenzar
-    if (modal && modal.classList.contains('active')) {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        modal.classList.remove('active');
-        enterPresentationMode();
-        return;
-      } else if (e.key === 'Escape') {
-        modal.classList.remove('active');
-        return;
-      }
-    }
-
-    if (!isPresentationActive) return;
-
-    // Tecla Escape -> salir
-    if (e.key === 'Escape') {
-      e.preventDefault();
-      exitPresentationMode();
-      return;
-    }
-
-    // Flecha derecha / Abajo / AvPág -> siguiente diapositiva
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown' || e.key === 'PageDown') {
-      e.preventDefault();
-      nextSlide();
-      return;
-    }
-
-    // Flecha izquierda / Arriba / RePág -> diapositiva anterior
-    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp' || e.key === 'PageUp') {
-      e.preventDefault();
-      prevSlide();
-      return;
-    }
-
-    // Espacio -> reproducir / pausar audio (cuando no se está en un botón o input)
-    if (e.key === ' ' && document.activeElement.tagName !== 'BUTTON' && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      if (btnAudio) btnAudio.click();
-      return;
-    }
-
-    // M -> silenciar
-    if ((e.key === 'm' || e.key === 'M') && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      if (btnMute) btnMute.click();
-      return;
-    }
-
-    // G -> alternar guías
-    if ((e.key === 'g' || e.key === 'G') && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      if (btnGuides) btnGuides.click();
-      return;
-    }
-
-    // F -> pantalla completa
-    if ((e.key === 'f' || e.key === 'F') && document.activeElement.tagName !== 'INPUT') {
-      e.preventDefault();
-      toggleFullscreen();
-      return;
-    }
-  });
-}
-
-function enterPresentationMode() {
-  isPresentationActive = true;
-  document.body.classList.add('presentation-mode');
-  
-  // Detectar la diapositiva actual según la posición del scroll
-  let bestIdx = 0;
-  presentationSlides.forEach((slide, idx) => {
-    const el = document.getElementById(slide.id);
-    if (el) {
-      const rect = el.getBoundingClientRect();
-      if (rect.top <= window.innerHeight * 0.4 && rect.bottom >= 0) {
-        bestIdx = idx;
-      }
-    }
-  });
-
-  goToSlide(bestIdx);
-  if (window.lucide) lucide.createIcons();
-}
-
-function exitPresentationMode() {
-  isPresentationActive = false;
-  document.body.classList.remove('presentation-mode');
-  if (document.fullscreenElement) {
-    document.exitFullscreen().catch(() => {});
-  }
-}
-
-function toggleFullscreen() {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch(() => {});
-  } else {
-    document.exitFullscreen().catch(() => {});
-  }
-}
-
-function goToSlide(index) {
-  if (index < 0) index = 0;
-  if (index >= presentationSlides.length) index = presentationSlides.length - 1;
-  currentSlideIndex = index;
-
-  const slide = presentationSlides[index];
-  const targetEl = document.getElementById(slide.id);
-  if (targetEl) {
-    targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (window.philosophicalGuide) {
-      philosophicalGuide.onSectionEnter(slide.id);
-    }
-  }
-
-  // Actualizar HUD
-  const titleEl = document.getElementById('presChapterTitle');
-  const countEl = document.getElementById('presSlideCounter');
-  const fillEl = document.getElementById('presProgressFill');
-  if (titleEl) titleEl.textContent = slide.title;
-  if (countEl) countEl.textContent = `${index + 1} / ${presentationSlides.length}`;
-  if (fillEl) fillEl.style.width = `${((index + 1) / presentationSlides.length) * 100}%`;
-}
-
-function nextSlide() {
-  if (currentSlideIndex < presentationSlides.length - 1) {
-    goToSlide(currentSlideIndex + 1);
-  }
-}
-
-function prevSlide() {
-  if (currentSlideIndex > 0) {
-    goToSlide(currentSlideIndex - 1);
-  }
-}
-
-function resetAllProgress() {
-  try {
-    localStorage.removeItem('spinoza_leibniz_quiz_best');
-    localStorage.removeItem('spinoza_minigame_best');
-  } catch(e) {}
-  
-  if (typeof startQuiz === 'function') startQuiz();
-  if (typeof resetMinigame === 'function') resetMinigame();
-
-  if (window.philosophicalGuide) {
-    philosophicalGuide.visitedSections.clear();
-    philosophicalGuide.stopAllAudio();
-  }
-
-  goToSlide(0);
-}
-
-// FASE 7: Pausar animaciones y cancelar audio/voz al cambiar de pestaña
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    document.body.classList.add('tab-hidden-paused');
-    if (window.philosophicalGuide) {
-      window.philosophicalGuide.stopAllAudio();
-    }
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-    }
-  } else {
-    document.body.classList.remove('tab-hidden-paused');
-  }
-});
-
-// Inicializar Modo Exposición al cargar DOM
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initPresentationMode);
-} else {
-  initPresentationMode();
-}
-
-</script>
+<script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 <style>
 
 /* ===== CARIBE COLOMBIANO DESIGN SYSTEM (FASE 4) ===== */
@@ -3601,6 +3313,315 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   }
 }
 
+
+/* ==============================================================================
+   DISEÑO INTEGRAL CARIBE COLOMBIANO: PALMERAS, COCOS, CASTILLOS DE ARENA Y OLAS
+   ============================================================================== */
+
+/* 1. Fondo Global Marino y Playero */
+body {
+  background: linear-gradient(180deg, 
+    #BEE9E8 0%, 
+    #E8F8F5 15%, 
+    #FAF0CA 35%, 
+    #F4E8C1 50%, 
+    #E0FBFC 65%, 
+    #FAF0CA 80%, 
+    #0B2545 92%, 
+    #FAF0CA 100%) !important;
+  color: #14213D;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* 2. Sistema de Cocos Cayendo (Falling Coconuts Animation) */
+#fallingCoconutsContainer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 99;
+  overflow: hidden;
+}
+
+.falling-coconut {
+  position: absolute;
+  top: -60px;
+  width: 32px;
+  height: 32px;
+  pointer-events: auto;
+  cursor: pointer;
+  filter: drop-shadow(0 6px 8px rgba(92, 64, 51, 0.3));
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  animation: coconutFallAndSway linear forwards;
+}
+.falling-coconut:hover {
+  transform: scale(1.25) rotate(15deg);
+}
+.falling-coconut.bounced {
+  animation: coconutBounceOut 0.8s ease-out forwards !important;
+}
+
+@keyframes coconutFallAndSway {
+  0% {
+    top: -60px;
+    transform: translateX(0px) rotate(0deg);
+    opacity: 0.95;
+  }
+  25% {
+    transform: translateX(25px) rotate(90deg);
+  }
+  50% {
+    transform: translateX(-20px) rotate(180deg);
+  }
+  75% {
+    transform: translateX(20px) rotate(270deg);
+  }
+  96% {
+    top: calc(100vh - 45px);
+    transform: translateX(5px) rotate(350deg) scale(1, 0.85);
+    opacity: 0.95;
+  }
+  100% {
+    top: calc(100vh - 40px);
+    transform: translateX(0px) rotate(360deg) scale(1, 1);
+    opacity: 0;
+  }
+}
+
+@keyframes coconutBounceOut {
+  0% { transform: translateY(0) scale(1.1); opacity: 1; }
+  40% { transform: translateY(-45px) scale(1.3) rotate(45deg); opacity: 1; }
+  100% { transform: translateY(60px) scale(0.6) rotate(180deg); opacity: 0; }
+}
+
+/* Toast caribeño para interacción con cocos y palmeras */
+.caribe-beach-toast {
+  position: fixed;
+  bottom: 28px;
+  left: 50%;
+  transform: translateX(-50%) translateY(30px);
+  background: rgba(11, 37, 69, 0.94);
+  color: #FAF0CA;
+  border: 1.5px solid #E9C46A;
+  padding: 10px 22px;
+  border-radius: 999px;
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-size: 0.88rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  z-index: 9999;
+  opacity: 0;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+}
+.caribe-beach-toast.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* 3. Escenografía de Palmeras Caribeñas */
+.caribe-palm-flank {
+  position: absolute;
+  bottom: 0;
+  z-index: 3;
+  pointer-events: auto;
+  cursor: pointer;
+  transition: transform 0.4s ease;
+}
+.caribe-palm-flank:hover {
+  filter: drop-shadow(0 8px 16px rgba(45, 106, 79, 0.35));
+}
+.caribe-palm-flank.left {
+  left: -20px;
+  transform-origin: bottom left;
+  animation: palmBreezeLeft 7s ease-in-out infinite alternate;
+}
+.caribe-palm-flank.right {
+  right: -20px;
+  transform-origin: bottom right;
+  animation: palmBreezeRight 8s ease-in-out infinite alternate;
+}
+.caribe-palm-flank.shaking {
+  animation: palmTreeShake 0.6s ease-in-out !important;
+}
+
+@keyframes palmBreezeLeft {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(2.5deg); }
+  100% { transform: rotate(-1.5deg); }
+}
+@keyframes palmBreezeRight {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-2.5deg); }
+  100% { transform: rotate(1.8deg); }
+}
+@keyframes palmTreeShake {
+  0%, 100% { transform: rotate(0deg); }
+  20% { transform: rotate(-4deg); }
+  40% { transform: rotate(4deg); }
+  60% { transform: rotate(-3deg); }
+  80% { transform: rotate(2deg); }
+}
+
+.palm-fronds-group {
+  transform-origin: 88px 74px;
+  animation: frondsSway 5s ease-in-out infinite alternate;
+}
+@keyframes frondsSway {
+  0% { transform: rotate(-1deg); }
+  100% { transform: rotate(2deg); }
+}
+
+/* 4. Escenas de Castillos de Arena (Sandcastles) */
+.caribe-beach-shoreline {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  margin: 32px auto 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding: 0 20px;
+  pointer-events: auto;
+  z-index: 4;
+}
+.sandcastle-scene {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 12px;
+  filter: drop-shadow(0 6px 14px rgba(153, 119, 54, 0.28));
+  cursor: pointer;
+  transition: transform 0.25s ease;
+}
+.sandcastle-scene:hover {
+  transform: translateY(-4px) scale(1.03);
+}
+.colombia-flag-sway {
+  transform-origin: 81px 9px;
+  animation: flagWave 2.8s ease-in-out infinite alternate;
+}
+@keyframes flagWave {
+  0% { transform: skewY(0deg) scaleX(0.95); }
+  50% { transform: skewY(4deg) scaleX(1.04); }
+  100% { transform: skewY(-3deg) scaleX(0.98); }
+}
+
+/* 5. Cocos en la Arena y Conchas */
+.beach-coconut-item {
+  display: inline-block;
+  cursor: pointer;
+  filter: drop-shadow(0 4px 6px rgba(92, 64, 51, 0.3));
+  transition: transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.beach-coconut-item:hover {
+  transform: translateY(-5px) scale(1.2) rotate(10deg);
+}
+
+/* 6. Estilo Postal Playera en Tarjetas */
+.concept-card, .spinoza-card, .leibniz-card, .glass-card, .route-card, .psico-card {
+  background: rgba(255, 255, 255, 0.94) !important;
+  border: 1.5px solid rgba(2, 128, 144, 0.2) !important;
+  border-radius: 20px !important;
+  box-shadow: 0 10px 28px rgba(0, 100, 140, 0.09) !important;
+  position: relative;
+  overflow: visible !important;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease, border-color 0.3s ease !important;
+}
+.concept-card::before, .spinoza-card::before, .leibniz-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 24px;
+  right: 24px;
+  height: 4px;
+  background: repeating-linear-gradient(90deg, 
+    var(--caribe-turquoise) 0px, var(--caribe-turquoise) 10px, 
+    var(--caribe-sun) 10px, var(--caribe-sun) 20px, 
+    var(--caribe-coral) 20px, var(--caribe-coral) 30px, 
+    var(--caribe-gold) 30px, var(--caribe-gold) 40px);
+  border-radius: 0 0 4px 4px;
+  opacity: 0.8;
+}
+.concept-card:hover, .spinoza-card:hover, .leibniz-card:hover {
+  transform: translateY(-6px) !important;
+  box-shadow: 0 18px 42px rgba(0, 100, 140, 0.16) !important;
+  border-color: var(--caribe-turquoise) !important;
+}
+
+/* Sello Postal Playero en tarjetas */
+.postcard-postage-stamp {
+  position: absolute;
+  top: 14px;
+  right: 16px;
+  width: 32px;
+  height: 38px;
+  border: 1.5px dashed var(--caribe-sun);
+  background: rgba(254, 243, 199, 0.6);
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: var(--caribe-coral);
+  pointer-events: none;
+  opacity: 0.85;
+  transform: rotate(4deg);
+}
+
+/* 7. Botón de Control de Brisa de Cocos */
+.btn-coconut-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1.5px solid var(--caribe-sun);
+  color: #5C4033;
+  padding: 6px 14px;
+  border-radius: 50px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+.btn-coconut-toggle:hover {
+  background: #FFE8D6;
+  border-color: var(--caribe-coral);
+  transform: translateY(-2px);
+}
+.btn-coconut-toggle.active {
+  background: var(--caribe-gold);
+  color: #14213D;
+}
+
+/* Ajustes Responsivos para Pantallas Móviles */
+@media (max-width: 768px) {
+  .caribe-palm-flank.left {
+    left: -40px;
+    bottom: -15px;
+    transform: scale(0.7);
+  }
+  .caribe-palm-flank.right {
+    right: -40px;
+    bottom: -15px;
+    transform: scale(0.7);
+  }
+  .caribe-beach-shoreline {
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 16px;
+  }
+  .sandcastle-scene svg {
+    width: 120px;
+    height: 98px;
+  }
+}
+
 </style>
 </head>
 <body>
@@ -3682,6 +3703,126 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 
   <!-- ============ HERO ============ -->
   <section id="hero" class="hero-section section visible">
+  <div class="caribe-palm-flank left" data-sec="hero" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" data-sec="hero" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank left" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="173" height="280" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="173" height="280" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
   <!-- Escenografía Caribeña (SVG/CSS Puro) -->
   <div class="caribe-sun-glow" aria-hidden="true"></div>
   <div class="caribe-palm-left" aria-hidden="true">
@@ -3762,10 +3903,128 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
       <a href="#pregunta" class="btn btn-primary" onclick="if(window.philosophicalGuide){ philosophicalGuide.hasUserInteracted=true; philosophicalGuide.triggerScript('pregunta'); }"><i data-lucide="compass"></i> COMENZAR TRAVESÍA</a>
       <a href="#viaje" class="btn btn-secondary"><i data-lucide="map"></i> EXPLORAR LIBREMENTE</a>
     </div>
+  
+  <div class="caribe-beach-shoreline" aria-label="Escena de playa caribeña">
+    <div class="sandcastle-scene" title="Castillo de arena con bandera colombiana">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="160" height="130" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="36" height="36" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
+
   </section>
 
   <!-- ============ LA PREGUNTA ============ -->
   <section id="pregunta" class="section">
+  <div class="caribe-palm-flank left" data-sec="pregunta" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo I — El Punto de Partida</div>
       <div class="section-tag-inline tag-coral"><i data-lucide="help-circle" style="width:14px;height:14px"></i> La pregunta</div>
@@ -3797,6 +4056,93 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="pregunta" aria-label="Orilla playera de pregunta">
+    <div class="sandcastle-scene" title="Castillo de arena de la Gran Pregunta">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- Divisor de Ola Caribeña -->
@@ -3808,6 +4154,66 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   </div>
   <!-- ============ SPINOZA ============ -->
   <section id="spinoza-section" class="section">
+  <div class="caribe-palm-flank right" data-sec="spinoza-section" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank left" style="bottom:-10px; opacity:0.9;" title="Palmera tropical"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="136" height="220" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo II — La Sustancia Infinita</div>
       <div class="section-tag-inline tag-teal"><i data-lucide="leaf" style="width:14px;height:14px"></i> Filósofo</div>
@@ -3878,6 +4284,93 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="spinoza-section" aria-label="Orilla playera de spinoza-section">
+    <div class="sandcastle-scene" title="Castillo de arena de la Sustancia Única (Spinoza)">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- Divisor de Ola Caribeña -->
@@ -3889,6 +4382,66 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   </div>
   <!-- ============ LEIBNIZ ============ -->
   <section id="leibniz-section" class="section">
+  <div class="caribe-palm-flank left" data-sec="leibniz-section" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" style="bottom:-10px; opacity:0.9;" title="Palmera tropical"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="136" height="220" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo III — El Orden de las Mónadas</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="sparkles" style="width:14px;height:14px"></i> Filósofo</div>
@@ -3959,10 +4512,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="leibniz-section" aria-label="Orilla playera de leibniz-section">
+    <div class="sandcastle-scene" title="Castillo de arena de las Infinitas Mónadas (Leibniz)">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ ELIGE UNA RUTA ============ -->
   <section id="rutas" class="section">
+  <div class="caribe-palm-flank right" data-sec="rutas" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo IV — La Bifurcación Ontológica</div>
       <div class="section-tag-inline tag-coral"><i data-lucide="git-branch" style="width:14px;height:14px"></i> Elige tu camino</div>
@@ -4010,10 +4680,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="rutas" aria-label="Orilla playera de rutas">
+    <div class="sandcastle-scene" title="Castillo de arena del Cruce de Rutas">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ ALMA Y CUERPO ============ -->
   <section id="alma" class="section">
+  <div class="caribe-palm-flank left" data-sec="alma" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo V — El Paralelismo Psicofísico</div>
       <div class="section-tag-inline tag-teal"><i data-lucide="heart" style="width:14px;height:14px"></i> Alma y cuerpo</div>
@@ -4047,10 +4834,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="alma" aria-label="Orilla playera de alma">
+    <div class="sandcastle-scene" title="Castillo de arena de Alma y Cuerpo">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ LIBERTAD ============ -->
   <section id="libertad" class="section">
+  <div class="caribe-palm-flank right" data-sec="libertad" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo VI — Los Grados de la Libertad</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="key" style="width:14px;height:14px"></i> Libertad</div>
@@ -4091,10 +4995,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="libertad" aria-label="Orilla playera de libertad">
+    <div class="sandcastle-scene" title="Castillo de arena de Libertad y Necesidad">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ EMOCIONES ============ -->
   <section id="emociones" class="section">
+  <div class="caribe-palm-flank left" data-sec="emociones" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo VII — La Geometría de los Afectos</div>
       <div class="section-tag-inline tag-coral"><i data-lucide="smile" style="width:14px;height:14px"></i> Emociones</div>
@@ -4135,6 +5156,93 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="emociones" aria-label="Orilla playera de emociones">
+    <div class="sandcastle-scene" title="Castillo de arena de los Afectos y Conatus">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   
@@ -4147,6 +5255,96 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   </div>
   <!-- ============ APORTES A LA PSICOLOGÍA ============ -->
   <section id="psicologia" class="section caribe-section-psicologia">
+  <div class="caribe-palm-flank left" data-sec="psicologia" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" data-sec="psicologia" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank left" style="bottom:-10px; opacity:0.9;" title="Palmera tropical"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="136" height="220" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="brain" style="width:12px;height:12px"></i> Capítulo VIII — Psicología y Subjetividad</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="sparkles" style="width:12px;height:12px"></i> Raíces de la Mente Moderna</div>
@@ -4224,7 +5422,94 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
-  </section>
+  
+  <div class="caribe-beach-shoreline" data-sec="psicologia" aria-label="Orilla playera de psicologia">
+    <div class="sandcastle-scene" title="Castillo de arena de Aportes a la Psicología">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
+</section>
 
 
   <!-- Divisor de Ola Caribeña -->
@@ -4236,6 +5521,96 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
   </div>
   <!-- ============ COMPARACIÓN ============ -->
   <section id="comparacion" class="section">
+  <div class="caribe-palm-flank left" data-sec="comparacion" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" data-sec="comparacion" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" style="bottom:-10px; opacity:0.9;" title="Palmera tropical"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="136" height="220" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo VIII — Cara a Cara Conceptual</div>
       <div class="section-tag-inline tag-coral"><i data-lucide="git-compare" style="width:14px;height:14px"></i> Comparación</div>
@@ -4291,10 +5666,148 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
-</section>
+
+  <div class="caribe-beach-shoreline">
+    <div class="sandcastle-scene" title="Gran castillo de arena de la bahía amurallada">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="165" height="130" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:16px; align-items:center;">
+      <span class="beach-coconut-item"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
+
+  </section>
 
   <!-- ============ DUELO FILOSÓFICO ============ -->
   <section id="duelo" class="section">
+  <div class="caribe-palm-flank left" data-sec="duelo" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" data-sec="duelo" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo IX — El Duelo Dialéctico</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="swords" style="width:14px;height:14px"></i> Duelo filosófico</div>
@@ -4326,10 +5839,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="duelo" aria-label="Orilla playera de duelo">
+    <div class="sandcastle-scene" title="Castillo de arena del Duelo Dialéctico">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ VIAJE / JOURNEY ============ -->
   <section id="viaje" class="section">
+  <div class="caribe-palm-flank left" data-sec="viaje" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="section-tag-inline tag-teal"><i data-lucide="map" style="width:14px;height:14px"></i> Tu viaje filosófico</div>
       <h2 class="section-title">Mapa del recorrido</h2>
@@ -4371,10 +6001,127 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
     <div class="journey-audio-hint">
       <i data-lucide="volume-2"></i> El barquito se mueve entre los puntos. Pulsa al viajero para escuchar.
     </div>
-  </section>
+  
+  <div class="caribe-beach-shoreline" data-sec="viaje" aria-label="Orilla playera de viaje">
+    <div class="sandcastle-scene" title="Castillo de arena náutico del Muelle">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
+</section>
 
   <!-- ============ QUIZ ============ -->
   <section id="quiz-section" class="section">
+  <div class="caribe-palm-flank right" data-sec="quiz-section" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo X — El Gran Desafío de Sabiduría</div>
       <div class="section-tag-inline tag-coral"><i data-lucide="trophy" style="width:14px;height:14px"></i> Reto final</div>
@@ -4402,10 +6149,109 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
-</section>
+
+  <div class="caribe-beach-shoreline">
+    <div style="display:flex; gap:12px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco bajo la luna"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="32" height="32" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+    <div class="sandcastle-scene" title="Castillo de arena en la noche estrellada">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="150" height="120" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+  </div>
+
+  </section>
 
   <!-- ============ MINI-JUEGO ============ -->
   <section id="minigame" class="section">
+  <div class="caribe-palm-flank left" data-sec="minigame" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="book-open" style="width:12px;height:12px"></i> Capítulo XI — Reacción Filosófica</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="gamepad-2" style="width:14px;height:14px"></i> Mini-juego</div>
@@ -4433,6 +6279,93 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
+
+  <div class="caribe-beach-shoreline" data-sec="minigame" aria-label="Orilla playera de minigame">
+    <div class="sandcastle-scene" title="Castillo de arena de Reflejos Ontológicos">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
 </section>
 
   <!-- ============ FOOTER / CIERRE ============ -->
@@ -4473,6 +6406,66 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
 
   <!-- ============ CRÉDITOS Y BIBLIOGRAFÍA ============ -->
   <section id="creditos" class="section creditos-section">
+  <div class="caribe-palm-flank left" data-sec="creditos" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" >
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
+  <div class="caribe-palm-flank right" data-sec="creditos" title="Toca la palmera para agitar cocos" aria-label="Palmera caribeña"><svg class="caribe-palm-svg" viewBox="0 0 160 260" width="142" height="230" fill="none" xmlns="http://www.w3.org/2000/svg" transform="scale(-1, 1)" transform-origin="center">
+  <!-- Trunk -->
+  <path d="M72 260 C75 210 65 160 76 110 C80 95 86 85 92 78 C96 74 100 85 96 95 C88 140 92 195 90 260 Z" fill="#8D5B4C"/>
+  <path d="M74 240 Q84 235 88 240 M73 210 Q83 205 87 210 M71 180 Q81 175 86 180 M72 150 Q80 145 84 150 M74 120 Q82 115 88 120 M78 95 Q85 92 90 95" stroke="#5C3A21" stroke-width="2.5" stroke-linecap="round"/>
+  <!-- Coconuts cluster -->
+  <circle cx="82" cy="76" r="7.5" fill="#5C4033" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="94" cy="78" r="7.5" fill="#4A2E1B" stroke="#3D2817" stroke-width="1.2"/>
+  <circle cx="88" cy="85" r="7" fill="#6A452B" stroke="#3D2817" stroke-width="1.2"/>
+  <!-- Highlights on coconuts -->
+  <circle cx="80" cy="74" r="1.5" fill="#8D5B4C"/>
+  <circle cx="92" cy="76" r="1.5" fill="#8D5B4C"/>
+  <!-- Palm Fronds (leaves) -->
+  <g class="palm-fronds-group">
+    <!-- Left Frond 1 -->
+    <path d="M88 74 C60 55 30 65 10 90 C30 82 55 80 84 76" fill="#2D6A4F"/>
+    <path d="M88 74 C58 52 28 62 10 90" stroke="#1B4332" stroke-width="1.5"/>
+    <!-- Left Frond 2 (Higher) -->
+    <path d="M88 74 C65 35 35 35 15 50 C38 45 65 52 86 73" fill="#40916C"/>
+    <!-- Center Top Frond -->
+    <path d="M88 74 C80 25 95 10 102 5 C102 25 96 50 89 74" fill="#52B788"/>
+    <!-- Right Frond 1 (High) -->
+    <path d="M88 74 C115 35 140 38 155 55 C135 50 110 56 89 74" fill="#40916C"/>
+    <!-- Right Frond 2 (Mid) -->
+    <path d="M88 74 C120 60 145 75 160 105 C140 92 115 88 89 76" fill="#2D6A4F"/>
+    <!-- Right Frond 3 (Low Droop) -->
+    <path d="M88 76 C110 88 135 110 145 135 C130 118 108 105 88 78" fill="#1B4332"/>
+    <!-- Left Frond 3 (Low Droop) -->
+    <path d="M86 76 C65 88 40 110 25 130 C42 115 65 102 86 78" fill="#1B4332"/>
+  </g>
+</svg></div>
     <div class="section-header">
       <div class="academic-chapter-pill"><i data-lucide="graduation-cap" style="width:12px;height:12px"></i> Capítulo XV — Exposición Académica</div>
       <div class="section-tag-inline tag-gold"><i data-lucide="award" style="width:14px;height:14px"></i> Créditos y Fuentes</div>
@@ -4594,7 +6587,94 @@ button:focus-visible, a:focus-visible, [tabindex]:focus-visible {
         <span>Volver al barco</span>
       </button>
     </div>
-  </section>
+  
+  <div class="caribe-beach-shoreline" data-sec="creditos" aria-label="Orilla playera de creditos">
+    <div class="sandcastle-scene" title="Gran castillo de arena de Celebración y Victoria">
+      <svg class="caribe-sandcastle-svg" viewBox="0 0 160 130" width="155" height="125" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Sand Mound Base -->
+  <path d="M10 128 C25 110 60 106 80 106 C105 106 135 110 152 128 Z" fill="#E0BC74"/>
+  <path d="M15 128 C35 118 65 114 80 114 C100 114 130 118 148 128 Z" fill="#F4D06F"/>
+  <!-- Left Turret -->
+  <rect x="28" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="25" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Left Turret Crenellations -->
+  <rect x="26" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="38" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="50" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M38 85 A3 3 0 0 1 44 85 L44 95 L38 95 Z" fill="#997736"/>
+  <!-- Right Turret -->
+  <rect x="106" y="70" width="26" height="46" rx="2" fill="#DDB766"/>
+  <rect x="103" y="62" width="32" height="10" rx="1.5" fill="#E8C676"/>
+  <!-- Right Turret Crenellations -->
+  <rect x="104" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="116" y="56" width="6" height="7" fill="#E8C676"/>
+  <rect x="128" y="56" width="6" height="7" fill="#E8C676"/>
+  <path d="M116 85 A3 3 0 0 1 122 85 L122 95 L116 95 Z" fill="#997736"/>
+  <!-- Connecting Wall -->
+  <rect x="52" y="78" width="56" height="38" fill="#E4BF6E"/>
+  <rect x="52" y="73" width="56" height="6" fill="#ECC97B"/>
+  <rect x="54" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="66" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="78" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="90" y="69" width="6" height="5" fill="#ECC97B"/>
+  <rect x="100" y="69" width="6" height="5" fill="#ECC97B"/>
+  <!-- Central Great Tower -->
+  <rect x="65" y="44" width="30" height="40" rx="2" fill="#E8C676"/>
+  <rect x="62" y="38" width="36" height="8" rx="1" fill="#F4D383"/>
+  <!-- Central Crenellations -->
+  <rect x="63" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="73" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="83" y="31" width="6" height="8" fill="#F4D383"/>
+  <rect x="91" y="31" width="6" height="8" fill="#F4D383"/>
+  <!-- Arched Gateway -->
+  <path d="M72 116 A8 8 0 0 1 88 116 L88 126 L72 126 Z" fill="#7D5C24"/>
+  <path d="M76 56 A4 4 0 0 1 84 56 L84 68 L76 68 Z" fill="#997736"/>
+  <!-- Flagpole & Colombian Flag (Amarillo, Azul, Rojo) -->
+  <line x1="80" y1="31" x2="80" y2="8" stroke="#5C4033" stroke-width="2"/>
+  <g class="colombia-flag-sway">
+    <rect x="81" y="9" width="18" height="6" fill="#FDC12A"/>
+    <rect x="81" y="15" width="18" height="3" fill="#003893"/>
+    <rect x="81" y="18" width="18" height="3" fill="#CE1126"/>
+  </g>
+  <!-- Seashell next to castle -->
+  <path d="M22 122 Q27 114 32 122 Q27 127 22 122 Z" fill="#FFDDD2" stroke="#E76F51" stroke-width="0.8"/>
+  <!-- Starfish next to castle -->
+  <path d="M136 122 L138 117 L142 120 L146 116 L144 121 L148 124 L143 125 L143 129 L139 126 L135 128 L137 124 Z" fill="#E76F51"/>
+</svg>
+    </div>
+    <div style="display:flex; gap:14px; align-items:center;">
+      <span class="beach-coconut-item" title="Coco con agua fresca"><svg class="beach-coconut-svg cracked" viewBox="0 0 36 36" width="34" height="34" fill="none">
+  <!-- Cracked coconut with white meat & straw -->
+  <path d="M4 18 C4 28 14 34 24 32 C31 30 34 22 32 16 C30 15 22 18 16 15 C10 12 6 16 4 18 Z" fill="#5C4033"/>
+  <path d="M7 19 C8 26 15 31 23 29 C29 27 31 21 29 17 C26 17 20 19 15 16 C11 14 8 17 7 19 Z" fill="#F8F9FA"/>
+  <path d="M10 20 C11 25 16 28 22 27 C26 25 28 21 26 18 C23 18 18 20 14 18 C12 17 11 19 10 20 Z" fill="#BEE9E8"/>
+  <!-- Tropical Straw -->
+  <line x1="20" y1="20" x2="32" y2="4" stroke="#E76F51" stroke-width="2.5" stroke-linecap="round"/>
+  <line x1="22" y1="18" x2="30" y2="6" stroke="#FFFFFF" stroke-width="1" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco caribeño"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="30" height="30" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+      <span class="beach-coconut-item" title="Coco en la arena"><svg class="beach-coconut-svg" viewBox="0 0 32 32" width="26" height="26" fill="none">
+  <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+  <path d="M12 9 Q14 11 16 8 M9 15 Q12 18 10 21 M20 14 Q22 17 24 13" stroke="#3D2817" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- 3 pores (eyes) -->
+  <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+  <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+  <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+  <!-- Highlight -->
+  <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+</svg></span>
+    </div>
+  </div>
+</section>
 
 </div><!-- /content-wrapper -->
 
@@ -6798,6 +8878,168 @@ if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', initPresentationMode);
 } else {
   initPresentationMode();
+}
+
+
+
+// ==============================================================================
+// MOTOR INTERACTIVO: COCOS CAYENDO, PALMERAS Y CASTILLOS DEL CARIBE COLOMBIANO
+// ==============================================================================
+class CaribeBeachExperience {
+  constructor() {
+    this.coconutsEnabled = true;
+    this.spawnTimer = null;
+    this.phrases = [
+      '🥥 ¡Un coco cayó! Causalidad geométrica necesaria de Spinoza.',
+      '🥥 ¡Ay mi madre! Una mónada reflejando el Caribe entero.',
+      '🥥 Brisa de Taganga: la potencia de actuar aumenta.',
+      '🥥 ¡Sabor a coco costeño! Mente y cuerpo en perfecta armonía.',
+      '🥥 ¡Puro Caribe filosófico! Dios o la Naturaleza en cada ola.',
+      '🥥 ¡Ojo con el coco! El entendimiento requiere atención.'
+    ];
+    this.init();
+  }
+
+  init() {
+    this.createContainer();
+    this.createToastElement();
+    this.startFallingCoconuts();
+    this.attachInteractiveListeners();
+  }
+
+  createContainer() {
+    let container = document.getElementById('fallingCoconutsContainer');
+    if (!container) {
+      container = document.createElement('div');
+      container.id = 'fallingCoconutsContainer';
+      document.body.appendChild(container);
+    }
+  }
+
+  createToastElement() {
+    let toast = document.getElementById('caribeBeachToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'caribeBeachToast';
+      toast.className = 'caribe-beach-toast';
+      toast.innerHTML = '<span id="caribeToastText">🥥 ¡Travesía caribeña activada!</span>';
+      document.body.appendChild(toast);
+    }
+  }
+
+  showToast(text) {
+    const toast = document.getElementById('caribeBeachToast');
+    const textEl = document.getElementById('caribeToastText');
+    if (!toast || !textEl) return;
+    textEl.textContent = text;
+    toast.classList.add('show');
+    clearTimeout(this.toastTimeout);
+    this.toastTimeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3200);
+  }
+
+  startFallingCoconuts() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      this.coconutsEnabled = false;
+      return;
+    }
+    // Generar un coco periódicamente (cada 4s) con máximo 3 en pantalla
+    this.spawnTimer = setInterval(() => {
+      if (!this.coconutsEnabled || document.hidden) return;
+      const count = document.querySelectorAll('.falling-coconut').length;
+      if (count < 3) {
+        this.spawnOneCoconut();
+      }
+    }, 4200);
+  }
+
+  spawnOneCoconut(customLeft = null) {
+    const container = document.getElementById('fallingCoconutsContainer');
+    if (!container) return;
+
+    const coconut = document.createElement('div');
+    coconut.className = 'falling-coconut';
+    
+    const leftPos = customLeft !== null ? customLeft : (8 + Math.random() * 84);
+    coconut.style.left = `${leftPos}vw`;
+    
+    const dur = 7.5 + Math.random() * 3.5;
+    coconut.style.animationDuration = `${dur}s`;
+
+    coconut.innerHTML = `
+      <svg viewBox="0 0 32 32" width="30" height="30" fill="none">
+        <circle cx="16" cy="16" r="13" fill="#5C4033" stroke="#3D2817" stroke-width="1.8"/>
+        <circle cx="13" cy="12" r="1.8" fill="#2E1B10"/>
+        <circle cx="18" cy="11.5" r="1.8" fill="#2E1B10"/>
+        <circle cx="15.5" cy="16" r="1.8" fill="#2E1B10"/>
+        <path d="M8 12 A10 10 0 0 1 14 6" stroke="#8D5B4C" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    `;
+
+    coconut.addEventListener('click', (e) => {
+      e.stopPropagation();
+      coconut.classList.add('bounced');
+      const randomPhrase = this.phrases[Math.floor(Math.random() * this.phrases.length)];
+      this.showToast(randomPhrase);
+      setTimeout(() => coconut.remove(), 800);
+    });
+
+    container.appendChild(coconut);
+
+    setTimeout(() => {
+      if (coconut.parentNode) coconut.remove();
+    }, (dur + 0.5) * 1000);
+  }
+
+  attachInteractiveListeners() {
+    document.querySelectorAll('.caribe-palm-flank').forEach(palm => {
+      palm.addEventListener('click', (e) => {
+        palm.classList.add('shaking');
+        setTimeout(() => palm.classList.remove('shaking'), 650);
+        const rect = palm.getBoundingClientRect();
+        const palmLeftVw = (rect.left + rect.width / 2) / window.innerWidth * 100;
+        this.spawnOneCoconut(palmLeftVw);
+        this.showToast('🌴 ¡Sacudiste la palmera! Cae un coco fresco a la playa.');
+      });
+    });
+
+    document.querySelectorAll('.sandcastle-scene').forEach(castle => {
+      castle.addEventListener('click', () => {
+        castle.style.transform = 'translateY(-8px) scale(1.08)';
+        setTimeout(() => castle.style.transform = '', 350);
+        this.showToast('🏰 ¡Castillo de arena intacto frente a las olas del Caribe!');
+      });
+    });
+
+    document.querySelectorAll('.beach-coconut-item').forEach(coco => {
+      coco.addEventListener('click', () => {
+        coco.style.transform = 'translateY(-10px) rotate(25deg) scale(1.3)';
+        setTimeout(() => coco.style.transform = '', 400);
+        this.showToast('🥥 ¡Coco caribeño! Conexión pura con la naturaleza.');
+      });
+    });
+  }
+
+  toggleCoconuts() {
+    this.coconutsEnabled = !this.coconutsEnabled;
+    const btn = document.getElementById('btnToggleCoconuts');
+    if (btn) {
+      btn.textContent = this.coconutsEnabled ? '🥥 Cocos: Activos' : '🥥 Cocos: Pausados';
+      btn.classList.toggle('active', this.coconutsEnabled);
+    }
+    this.showToast(this.coconutsEnabled ? '🥥 Brisa de cocos activada en la playa' : '🥥 Brisa de cocos en pausa');
+  }
+}
+
+// Inicialización global explícita
+window.CaribeBeachExperience = CaribeBeachExperience;
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    window.caribeExperienceInstance = new CaribeBeachExperience();
+  });
+} else {
+  window.caribeExperienceInstance = new CaribeBeachExperience();
 }
 
 </script>
